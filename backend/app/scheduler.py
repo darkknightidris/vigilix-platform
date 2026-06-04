@@ -40,13 +40,13 @@ async def check_deadlines():
         res = await client.get(
             f"{SUPABASE_URL}/rest/v1/vulnerabilities",
             headers=headers,
-            params={
-                "select": "id,title,deadline,status,assigned_to,projects(name),profiles(full_name,email)",
-                "deadline": f"gte.{now.date().isoformat()}",
-                "deadline": f"lte.{tomorrow.date().isoformat()}",
-                "status": "neq.resolved",
-                "assigned_to": "not.is.null",
-            }
+            params=[
+                ("select", "id,title,deadline,status,assigned_to,projects(name),profiles(full_name,email)"),
+                ("deadline", f"gte.{now.date().isoformat()}"),
+                ("deadline", f"lte.{tomorrow.date().isoformat()}"),
+                ("status", "neq.resolved"),
+                ("assigned_to", "not.is.null"),
+            ]
         )
 
         if res.status_code != 200:
