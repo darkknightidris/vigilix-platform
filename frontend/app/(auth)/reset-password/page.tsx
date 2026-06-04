@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, Suspense } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 function ResetPasswordForm() {
   const [password, setPassword] = useState("")
@@ -12,21 +12,16 @@ function ResetPasswordForm() {
   const [sessionReady, setSessionReady] = useState(false)
   const supabase = createClient()
   const router = useRouter()
-  const searchParams = useSearchParams()
+
   useEffect(() => {
-    const code = searchParams.get("code")
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        if (error) {
-          setError("Link tidak valid atau sudah expired. Minta reset password baru.")
-        } else {
-          setSessionReady(true)
-        }
-      })
-    } else {
-      setError("Auth session missing!")
-    }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setSessionReady(true)
+      }
+    })
+    return () => subscription.unsubscribe()
   }, [])
+
   const handleReset = async () => {
     if (!password) { setError("Password wajib diisi"); return }
     if (password.length < 8) { setError("Password minimal 8 karakter"); return }
@@ -38,6 +33,7 @@ function ResetPasswordForm() {
     setSuccess(true)
     setTimeout(() => router.push("/dashboard"), 2000)
   }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-md p-8 bg-gray-900 rounded-xl border border-gray-800">
@@ -58,7 +54,9 @@ function ResetPasswordForm() {
               <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400 text-sm">{error}</div>
             )}
             {!sessionReady && !error && (
-              <div className="p-3 bg-gray-800 rounded-lg text-gray-400 text-sm">Memverifikasi link...</div>
+              <div className="p-3 bg-gray-800 rounded-lg text-gray-400 text-sm text-center">
+                ? Memverifikasi link reset password...
+              </div>
             )}
             {sessionReady && (
               <>
