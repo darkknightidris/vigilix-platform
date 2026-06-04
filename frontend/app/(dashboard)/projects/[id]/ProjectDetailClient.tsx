@@ -1,0 +1,227 @@
+﻿"use client"
+import { useState, useTransition } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import AssignDeadlineForm from "./AssignDeadlineForm"
+import GeneratePDFButton from "./GeneratePDFButton"
+
+const severityColors: Record<string,string> = {
+  critical:"bg-red-600",high:"bg-orange-500",medium:"bg-yellow-500",low:"bg-blue-500",info:"bg-gray-600"
+}
+const statusColors: Record<string,string> = {
+  open:"bg-red-900/50 text-red-400",
+  in_progress:"bg-yellow-900/50 text-yellow-400",
+  fixed:"bg-green-900/50 text-green-400",
+  closed:"bg-gray-700 text-gray-400"
+}
+
+export default function ProjectDetailClient({ project, vulns: initialVulns, members, isAdmin, orgName, projectId, counts }: {
+  project: any, vulns: any[], members: any[], isAdmin: boolean, orgName: string, projectId: string, counts: Record<string,number>
+}) {
+  const [vulns, setVulns] = useState(initialVulns)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [bulkStatus, setBulkStatus] = useState("")
+  const [deleting, setDeleting] = useState(false)
+  const [updating, setUpdating] = useState(false)
+  const [toast, setToast] = useState<{msg:string,ok:boolean}|null>(null)
+  const router = useRouter()
+  const supabase = createClient()
+
+  const showToast = (msg: string, ok = true) => {
+    setToast({msg,ok})
+    setTimeout(() => setToast(null), 3000)
+  }
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const toggleAll = () => {
+    if (selected.size === vulns.length) setSelected(new Set())
+    else setSelected(new Set(vulns.map(v => v.id)))
+  }
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`Hapus ${selected.size} temuan? Tindakan ini tidak bisa dibatalkan.`)) return
+    setDeleting(true)
+    const ids = Array.from(selected)
+    const { error } = await supabase.from("vulnerabilities").delete().in("id", ids)
+    if (error) { showToast("Gagal menghapus temuan", false) }
+    else {
+      setVulns(prev => prev.filter(v => !ids.includes(v.id)))
+      setSelected(new Set())
+      showToast(`${ids.length} temuan berhasil dihapus`)
+    }
+    setDeleting(false)
+  }
+
+  const handleBulkStatus = async () => {
+    if (!bulkStatus) return
+    setUpdating(true)
+    const ids = Array.from(selected)
+    const { error } = await supabase.from("vulnerabilities").update({ status: bulkStatus }).in("id", ids)
+    if (error) { showToast("Gagal update status", false) }
+    else {
+      setVulns(prev => prev.map(v => ids.includes(v.id) ? {...v, status: bulkStatus} : v))
+      setSelected(new Set())
+      setBulkStatus("")
+      showToast(`${ids.length} temuan diupdate ke "${bulkStatus.replace("_"," ")}"`)
+    }
+    setUpdating(false)
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6">
+      {toast && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-sm font-medium border shadow-lg ${toast.ok ? "bg-green-950/90 border-green-700 text-green-300" : "bg-red-950/90 border-red-700 text-red-300"}`}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div className="flex items-center gap-3">
+          <Link href="/projects" className="text-gray-400 hover:text-white transition">?</Link>
+          <div>
+            <h1 className="text-2xl font-bold text-white">{project.name}</h1>
+            {project.description && <p className="text-gray-400 text-sm mt-1">{project.description}</p>}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <GeneratePDFButton projectId={projectId} projectName={project.name} orgName={orgName} />
+          <Link href={`/projects/${projectId}/kanban`}
+            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
+            ?? Kanban
+          </Link>
+          <Link href={`/projects/${projectId}/import`}
+            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
+            Import CSV
+          </Link>
+          {isAdmin && (
+            <>
+              <Link href={`/projects/${projectId}/edit`}
+                className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
+                Edit
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Severity counts */}
+      <div className="grid grid-cols-5 gap-3">
+        {Object.entries(counts).map(([sev, count]) => (
+          <div key={sev} className="p-4 bg-gray-900 rounded-xl border border-gray-800 text-center">
+            <div className={`inline-block w-2 h-2 rounded-full mb-2 ${severityColors[sev]}`} />
+            <p className="text-white font-bold text-xl">{count}</p>
+            <p className="text-gray-400 text-xs capitalize">{sev}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Bulk action bar */}
+      {selected.size > 0 && isAdmin && (
+        <div className="flex items-center gap-3 p-3 bg-indigo-950/40 border border-indigo-700/50 rounded-xl flex-wrap">
+          <span className="text-indigo-300 text-sm font-medium">{selected.size} dipilih</span>
+          <div className="flex items-center gap-2 flex-1 flex-wrap">
+            <select value={bulkStatus} onChange={e => setBulkStatus(e.target.value)}
+              className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-indigo-500">
+              <option value="">Ubah status...</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="fixed">Fixed</option>
+              <option value="closed">Closed</option>
+            </select>
+            <button onClick={handleBulkStatus} disabled={!bulkStatus || updating}
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm rounded-lg transition">
+              {updating ? "Mengupdate..." : "Update Status"}
+            </button>
+            <button onClick={handleBulkDelete} disabled={deleting}
+              className="px-3 py-1.5 bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-sm rounded-lg transition flex items-center gap-1">
+              {deleting ? "Menghapus..." : `🗑 Hapus (${selected.size})`}
+            </button>
+            <button onClick={() => setSelected(new Set())}
+              className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition">
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Header list */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          {isAdmin && vulns.length > 0 && (
+            <input type="checkbox" checked={selected.size === vulns.length && vulns.length > 0}
+              onChange={toggleAll}
+              className="w-4 h-4 accent-indigo-500 cursor-pointer" />
+          )}
+          <h2 className="text-white font-semibold">Temuan ({vulns.length})</h2>
+        </div>
+        <Link href={`/projects/${projectId}/vulnerabilities/new`}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
+          + Tambah Temuan
+        </Link>
+      </div>
+
+      {/* Vuln list */}
+      {vulns.length === 0 ? (
+        <div className="p-12 bg-gray-900 rounded-xl border border-gray-800 text-center">
+          <p className="text-4xl mb-3">📋</p>
+          <p className="text-white font-medium">Belum ada temuan</p>
+          <Link href={`/projects/${projectId}/vulnerabilities/new`}
+            className="inline-block mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
+            + Tambah Temuan Pertama
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {vulns.map((v: any) => (
+            <div key={v.id} className={`p-5 bg-gray-900 rounded-xl border transition ${selected.has(v.id) ? "border-indigo-500/60 bg-indigo-950/20" : "border-gray-800 hover:border-gray-600"}`}>
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex items-start gap-3 flex-1">
+                  {isAdmin && (
+                    <input type="checkbox" checked={selected.has(v.id)} onChange={() => toggleSelect(v.id)}
+                      className="w-4 h-4 mt-1.5 accent-indigo-500 cursor-pointer shrink-0" />
+                  )}
+                  <Link href={`/projects/${projectId}/vulnerabilities/${v.id}`}
+                    className="flex items-start gap-3 flex-1 group">
+                    <span className={`mt-1 px-2 py-0.5 rounded text-xs font-bold uppercase text-white shrink-0 ${severityColors[v.severity] || "bg-gray-600"}`}>
+                      {v.severity}
+                    </span>
+                    <div>
+                      <p className="text-white font-medium group-hover:text-blue-400 transition">{v.title}</p>
+                      {v.cvss_score && <p className="text-gray-400 text-xs mt-0.5">CVSS: {v.cvss_score}</p>}
+                    </div>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status] || ""}`}>
+                    {v.status?.replace("_"," ")}
+                  </span>
+                  <span className="text-gray-500 text-xs">{new Date(v.created_at).toLocaleDateString("id-ID")}</span>
+                  {isAdmin && (
+                    <Link href={`/projects/${projectId}/vulnerabilities/${v.id}`}
+                      className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-blue-950/30 rounded-lg transition text-xs">
+                      ✏️
+                    </Link>
+                  )}
+                </div>
+              </div>
+              {isAdmin && (
+                <div className="mt-3 pt-3 border-t border-gray-800">
+                  <AssignDeadlineForm vuln={v} members={members || []} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
