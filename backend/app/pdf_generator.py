@@ -1,5 +1,5 @@
-"""
-pdf_generator.py — Vigilix
+﻿"""
+pdf_generator.py â€” Vigilix
 ==========================
 Patch ini menggantikan fungsi _draw_header() yang sudah ada dan menambahkan
 dukungan custom logo perusahaan (upload dari Supabase Storage).
@@ -34,7 +34,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 # Import renderer logo Vigilix
 import sys, os; sys.path.insert(0, os.path.dirname(__file__)); from vigilix_logo_renderer import draw_vigilix_logo
 
-# ── Konstanta warna ───────────────────────────────────────────────────────────
+# â”€â”€ Konstanta warna â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 C_PURPLE      = HexColor("#534AB7")
 C_PURPLE_FILL = HexColor("#EEEDFE")
 C_PURPLE_MID  = HexColor("#7F77DD")
@@ -58,7 +58,7 @@ MARGIN = 20 * mm
 HEADER_H = 32 * mm   # tinggi area header
 
 
-# ── Utility: download logo client dari URL ────────────────────────────────────
+# â”€â”€ Utility: download logo client dari URL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _fetch_org_logo(logo_url: str) -> str | None:
     """
@@ -90,7 +90,7 @@ def _fetch_org_logo(logo_url: str) -> str | None:
         return None
 
 
-# ── Header renderer ───────────────────────────────────────────────────────────
+# â”€â”€ Header renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _draw_header(
     c: canvas.Canvas,
@@ -105,9 +105,9 @@ def _draw_header(
     Gambar header di atas setiap halaman PDF.
 
     Layout:
-    ┌────────────────────────────────────────────────────────────────┐
-    │ [Vigilix logo]  │  [Client logo?]  │  Judul  ·  Meta  · Hal  │
-    └────────────────────────────────────────────────────────────────┘
+    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+    â”‚ [Vigilix logo]  â”‚  [Client logo?]  â”‚  Judul  Â·  Meta  Â· Hal  â”‚
+    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
     """
     # Background header
     c.setFillColor(C_PURPLE_FILL)
@@ -121,13 +121,13 @@ def _draw_header(
     logo_x = MARGIN + 2*mm
     logo_y = H - HEADER_H - 6*mm
 
-    # ── Logo Vigilix ─────────────────────────────────────────────────────────
+    # â”€â”€ Logo Vigilix â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     draw_vigilix_logo(c, x=logo_x, y=logo_y, scale=logo_scale, show_tagline=False)
     vigilix_logo_w = 42 * mm * logo_scale   # lebar efektif logo
 
     content_x = logo_x + vigilix_logo_w + 4*mm
 
-    # ── Logo client (opsional) ───────────────────────────────────────────────
+    # â”€â”€ Logo client (opsional) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if org_logo_path:
         try:
             # Divider vertikal
@@ -154,13 +154,13 @@ def _draw_header(
         except Exception as e:
             print(f"[PDF] Gagal render org logo: {e}")
 
-    # ── Divider sebelum teks ─────────────────────────────────────────────────
+    # â”€â”€ Divider sebelum teks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     c.setStrokeColor(C_PURPLE_LIGHT)
     c.setLineWidth(0.7)
     c.line(content_x, logo_y + 2*mm, content_x, logo_y + HEADER_H - 4*mm)
     content_x += 4*mm
 
-    # ── Teks: judul laporan, org, tanggal ────────────────────────────────────
+    # â”€â”€ Teks: judul laporan, org, tanggal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     text_y_top = logo_y + HEADER_H - 7*mm
     c.setFillColor(C_PURPLE)
     c.setFont("Helvetica-Bold", 11)
@@ -172,7 +172,7 @@ def _draw_header(
     c.drawString(content_x, text_y_top - 10*mm, f"Organization: {org_name}")
     c.drawString(content_x, text_y_top - 14.5*mm, f"Generated: {generated_at}")
 
-    # ── Nomor halaman (pojok kanan) ───────────────────────────────────────────
+    # â”€â”€ Nomor halaman (pojok kanan) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     c.setFillColor(C_GRAY_MID)
     c.setFont("Helvetica", 8)
     page_text = f"Page {page_num} of {total_pages}"
@@ -180,7 +180,7 @@ def _draw_header(
     c.drawString(W - MARGIN - page_text_w, H - 8*mm, page_text)
 
 
-# ── Footer renderer ───────────────────────────────────────────────────────────
+# â”€â”€ Footer renderer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _draw_footer(c: canvas.Canvas):
     """Footer tipis di bawah setiap halaman."""
@@ -189,12 +189,12 @@ def _draw_footer(c: canvas.Canvas):
     c.line(MARGIN, 12*mm, W - MARGIN, 12*mm)
     c.setFillColor(C_GRAY_MID)
     c.setFont("Helvetica", 7.5)
-    c.drawString(MARGIN, 8*mm, "Vigilix — Security Management Platform  ·  vigilix.id")
+    c.drawString(MARGIN, 8*mm, "Vigilix â€” Security Management Platform  Â·  vigilix.id")
     c.setFillColor(C_PURPLE)
     c.drawRightString(W - MARGIN, 8*mm, "CONFIDENTIAL")
 
 
-# ── Severity badge ────────────────────────────────────────────────────────────
+# â”€â”€ Severity badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def _draw_severity_badge(c: canvas.Canvas, x: float, y: float, severity: str):
     """Gambar badge severity berwarna (lebar ~18mm, tinggi ~5mm)."""
@@ -209,13 +209,13 @@ def _draw_severity_badge(c: canvas.Canvas, x: float, y: float, severity: str):
     c.drawString(x + (badge_w - label_w) / 2, y + 0.8*mm, label)
 
 
-# ── Fungsi utama: generate_report() ──────────────────────────────────────────
+# â”€â”€ Fungsi utama: generate_report() â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def generate_report(
     findings: list[dict],
     project_name: str,
     org_name: str,
-    org_logo_url: str | None = None,   # ← BARU: URL logo dari Supabase Storage
+    org_logo_url: str | None = None,   # â† BARU: URL logo dari Supabase Storage
     output_path: str = "report.pdf",
 ) -> str:
     """
@@ -244,7 +244,7 @@ def generate_report(
     c = canvas.Canvas(output_path, pagesize=A4)
     total_pages = est_pages   # akan di-update di pass kedua jika perlu
 
-    # ── Halaman 1: Cover ─────────────────────────────────────────────────────
+    # â”€â”€ Halaman 1: Cover â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     c.setFillColor(white)
     c.rect(0, 0, W, H, fill=1, stroke=0)
 
@@ -345,7 +345,7 @@ def generate_report(
     _draw_footer(c)
     c.showPage()
 
-    # ── Halaman temuan ────────────────────────────────────────────────────────
+    # â”€â”€ Halaman temuan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     for idx, finding in enumerate(findings, 1):
         c.setFillColor(white)
         c.rect(0, 0, W, H, fill=1, stroke=0)
@@ -364,13 +364,13 @@ def generate_report(
         content_y = H - HEADER_H - 14*mm
         content_x = MARGIN
 
-        # ── Finding number + judul ────────────────────────────────────────
+        # â”€â”€ Finding number + judul â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         c.setFillColor(C_PURPLE)
         c.setFont("Helvetica-Bold", 13)
         c.drawString(content_x, content_y, f"#{idx:02d}  {finding.get('title', 'Untitled')}")
         content_y -= 7*mm
 
-        # ── Severity badge + CVSS + Status ───────────────────────────────
+        # â”€â”€ Severity badge + CVSS + Status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         severity = finding.get("severity", "info")
         _draw_severity_badge(c, content_x, content_y, severity)
 
@@ -398,7 +398,7 @@ def generate_report(
         c.line(MARGIN, content_y, W - MARGIN, content_y)
         content_y -= 6*mm
 
-        # ── Description ───────────────────────────────────────────────────
+        # â”€â”€ Description â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         c.setFillColor(C_GRAY_DARK)
         c.setFont("Helvetica-Bold", 9)
         c.drawString(content_x, content_y, "Description")
@@ -413,7 +413,7 @@ def generate_report(
             content_y -= 4.5*mm
         content_y -= 3*mm
 
-        # ── Steps to reproduce ────────────────────────────────────────────
+        # â”€â”€ Steps to reproduce â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         steps = finding.get("steps_to_reproduce", "")
         if steps:
             c.setFillColor(C_GRAY_DARK)
@@ -434,7 +434,7 @@ def generate_report(
                 content_y -= 4.5*mm
             content_y -= 5*mm
 
-        # ── Remediation notes (jika ada) ──────────────────────────────────
+        # â”€â”€ Remediation notes (jika ada) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         remed = finding.get("remediation_notes", "")
         if remed:
             c.setFillColor(HexColor("#1D9E75"))
@@ -460,9 +460,28 @@ def generate_report(
     return output_path
 
 
-# ── Import yang dibutuhkan di atas tapi lupa ──────────────────────────────────
+# â”€â”€ Import yang dibutuhkan di atas tapi lupa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 import math
 
 
 # Alias untuk kompatibilitas dengan report.py yang sudah ada
 generate_pdf = generate_report
+
+def generate_pdf(data) -> bytes:
+    """Wrapper untuk kompatibilitas dengan router."""
+    import tempfile, os
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+        tmp_path = tmp.name
+    try:
+        generate_report(
+            findings=[v.dict() for v in data.vulnerabilities],
+            project_name=data.project_name,
+            org_name=data.org_name,
+            org_logo_url=getattr(data, "logo_url", None),
+            output_path=tmp_path,
+        )
+        with open(tmp_path, "rb") as f:
+            return f.read()
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
