@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 import { useState, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -74,6 +74,7 @@ export default function VulnDetailClient({
   }
 
   const isImage = (name: string) => /\.(jpg|jpeg|png|gif|webp)$/i.test(name)
+  const isAdminOrOwner = ["owner", "admin"].includes(userRole?.toLowerCase())
 
   return (
     <div className="space-y-6">
@@ -83,8 +84,9 @@ export default function VulnDetailClient({
         initialStatus={vuln.remediation_status ?? "open"}
         initialSlaDeadline={vuln.sla_deadline}
         initialSlaNote={vuln.sla_note}
-        isAdmin={userRole === "Admin"}
+        isAdminOrOwner={isAdminOrOwner}
       />
+
       {/* Attachments */}
       <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
         <div className="flex justify-between items-center mb-4">
