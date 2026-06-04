@@ -1,6 +1,7 @@
 ﻿"use client"
 import TwoFactorSection from "@/components/TwoFactorSection"
 import WebhookSettings from "@/components/WebhookSettings"
+import ApiKeySettings from "@/components/ApiKeySettings"
 import { useEffect, useState, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -552,6 +553,12 @@ export default function SettingsPage() {
       </Section>
 
       {/* â”€â”€ 4. Danger Zone (owner only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── REST API Keys ── */}
+      <Section icon={<span className="text-lg">🔑</span>} title="REST API Keys">
+        <p className="text-xs text-gray-500 -mt-1">Akses data Vigilix via REST API. Tersedia untuk plan Team.</p>
+        <ApiKeySettings token={twoFAToken} isAdmin={isOwnerOrAdmin} plan={profile?.organizations?.plan || "free"} />
+      </Section>
+
       {/* ── Webhook Integrations ── */}
       <Section icon={<span className="text-lg">🔗</span>} title="Webhook & Integrations">
         <p className="text-xs text-gray-500 -mt-1">Kirim notifikasi otomatis ke Slack, Discord, atau Microsoft Teams.</p>
