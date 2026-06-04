@@ -24,7 +24,7 @@ export default async function CompliancePage({ params }: { params: Promise<{ id:
     .from("profiles").select("organization_id, role").eq("id", user.id).single()
 
   const { data: project } = await supabase
-    .from("projects").select("id, name").eq("id", id).single()
+    .from("projects").select("id, name, organization_id").eq("id", id).single()
   if (!project || project.organization_id !== profile?.organization_id) notFound()
 
   const { data: vulns } = await supabase
@@ -35,10 +35,9 @@ export default async function CompliancePage({ params }: { params: Promise<{ id:
   const { data: controls } = await supabase
     .from("compliance_controls").select("*").order("code")
 
-  if (!vulns || !controls) notFound()
-
-  // Build mapping: control -> vulns
-  const frameworks = [...new Set(controls.map((c: any) => c.framework))]
+  const allVulns = vulns || []
+  const allControls = controls || []
+  const frameworks = [...new Set(allControls.map((c: any) => c.framework))]
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -51,45 +50,40 @@ export default async function CompliancePage({ params }: { params: Promise<{ id:
       </div>
 
       {frameworks.map((fw: any) => {
-        const fwControls = controls.filter((c: any) => c.framework === fw)
-        const totalControls = fwControls.length
+        const fwControls = allControls.filter((c: any) => c.framework === fw)
         const coveredControls = fwControls.filter((c: any) =>
-          vulns.some((v: any) => (v.compliance_tags || []).includes(c.id))
+          allVulns.some((v: any) => (v.compliance_tags || []).includes(c.id))
         ).length
-        const pct = Math.round((coveredControls / totalControls) * 100)
+        const pct = fwControls.length > 0 ? Math.round((coveredControls / fwControls.length) * 100) : 0
 
         return (
           <div key={fw} className={`rounded-xl border p-5 space-y-4 ${FRAMEWORK_COLORS[fw] ?? "border-gray-800 bg-gray-900"}`}>
-            {/* Framework header */}
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-white font-semibold">{fw}</h2>
-                <p className="text-gray-400 text-xs mt-0.5">{coveredControls} / {totalControls} controls ter-cover</p>
+                <p className="text-gray-400 text-xs mt-0.5">{coveredControls} / {fwControls.length} controls ter-cover</p>
               </div>
               <div className="text-right">
                 <span className="text-2xl font-bold text-white">{pct}%</span>
                 <p className="text-gray-500 text-xs">coverage</p>
               </div>
             </div>
-            {/* Progress bar */}
             <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-500 rounded-full transition-all duration-500"
-                style={{ width: `${pct}%` }} />
+              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
             </div>
-            {/* Controls list */}
             <div className="space-y-2">
               {fwControls.map((c: any) => {
-                const mappedVulns = vulns.filter((v: any) => (v.compliance_tags || []).includes(c.id))
+                const mappedVulns = allVulns.filter((v: any) => (v.compliance_tags || []).includes(c.id))
                 const covered = mappedVulns.length > 0
                 return (
                   <div key={c.id} className={`p-3 rounded-lg border ${covered ? "border-green-800/40 bg-green-950/10" : "border-gray-800 bg-gray-900/50"}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2 flex-1">
-                        <span className={`mt-0.5 w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs ${covered ? "bg-green-600" : "bg-gray-700"}`}>
-                          {covered ? "✓" : ""}
+                        <span className={`mt-0.5 w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${covered ? "bg-green-600 text-white" : "bg-gray-700 text-gray-500"}`}>
+                          {covered ? "v" : ""}
                         </span>
-                        <div>
-                          <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <span className={`px-1.5 py-0.5 rounded text-xs font-mono font-medium ${TAG_COLORS[fw] ?? "bg-gray-800 text-gray-400"}`}>
                               {c.code}
                             </span>
