@@ -1,4 +1,5 @@
-﻿"use client"
+"use client"
+import AnalyticsDashboard from "@/components/AnalyticsDashboard"
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -123,6 +124,10 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
           </div>
         ))}
       </div>
+      {/* Analytics */}
+      <AnalyticsDashboard projectId={projectId} />
+
+
 
       {/* Bulk action bar */}
       {selected.size > 0 && isAdmin && (
@@ -143,7 +148,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
             </button>
             <button onClick={handleBulkDelete} disabled={deleting}
               className="px-3 py-1.5 bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-sm rounded-lg transition flex items-center gap-1">
-              {deleting ? "Menghapus..." : `🗑 Hapus (${selected.size})`}
+              {deleting ? "Menghapus..." : `?? Hapus (${selected.size})`}
             </button>
             <button onClick={() => setSelected(new Set())}
               className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition">
@@ -172,7 +177,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
       {/* Vuln list */}
       {vulns.length === 0 ? (
         <div className="p-12 bg-gray-900 rounded-xl border border-gray-800 text-center">
-          <p className="text-4xl mb-3">📋</p>
+          <p className="text-4xl mb-3">??</p>
           <p className="text-white font-medium">Belum ada temuan</p>
           <Link href={`/projects/${projectId}/vulnerabilities/new`}
             className="inline-block mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
@@ -208,7 +213,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
                   {isAdmin && (
                     <Link href={`/projects/${projectId}/vulnerabilities/${v.id}`}
                       className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-blue-950/30 rounded-lg transition text-xs">
-                      ✏️
+                      ??
                     </Link>
                   )}
                 </div>
@@ -225,3 +230,4 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
     </div>
   )
 }
+
