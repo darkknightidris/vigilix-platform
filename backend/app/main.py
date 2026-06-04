@@ -1,9 +1,11 @@
-﻿import sentry_sdk
+import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from app.routers import report
+from app.scheduler import start_scheduler, stop_scheduler
 import os
 
 sentry_sdk.init(
@@ -13,7 +15,13 @@ sentry_sdk.init(
     environment=os.getenv("ENVIRONMENT", "production"),
 )
 
-app = FastAPI(title="Vigilix API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+    yield
+    stop_scheduler()
+
+app = FastAPI(title="Vigilix API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
