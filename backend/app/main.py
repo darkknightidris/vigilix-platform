@@ -1,10 +1,10 @@
-import sentry_sdk
+﻿import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.routers import report
+from app.routers import report, remediation
 from app.scheduler import start_scheduler, stop_scheduler
 import os
 
@@ -32,6 +32,7 @@ app.add_middleware(
 )
 
 app.include_router(report.router, prefix="/api")
+app.include_router(remediation.router)
 
 @app.get("/")
 def root():
