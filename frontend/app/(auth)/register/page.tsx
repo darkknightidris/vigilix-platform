@@ -1,8 +1,10 @@
-"use client"
+﻿"use client"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+
+const API = process.env.NEXT_PUBLIC_API_URL || "https://vigilix-platform-production.up.railway.app"
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("")
@@ -15,50 +17,76 @@ export default function RegisterPage() {
   const supabase = createClient()
 
   const handleRegister = async () => {
+    if (!fullName || !orgName || !email || !password) {
+      setError("Semua field harus diisi"); return
+    }
+    if (password.length < 8) {
+      setError("Password minimal 8 karakter"); return
+    }
     setLoading(true)
     setError("")
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { full_name: fullName } }
-    })
-    if (signUpError) { setError(signUpError.message); setLoading(false); return }
-    const slug = orgName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
-    const { data: org, error: orgError } = await supabase
-      .from("organizations").insert({ name: orgName, slug: `${slug}-${Date.now()}` })
-      .select().single()
-    if (orgError) { setError(orgError.message); setLoading(false); return }
-    await supabase.from("profiles").update({ organization_id: org.id, role: "owner" }).eq("id", data.user!.id)
-    router.push("/dashboard")
+
+    try {
+      // 1. Register via backend (service role — bypass RLS)
+      const res = await fetch(`${API}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ full_name: fullName, org_name: orgName, email, password })
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.detail || "Gagal membuat akun")
+
+      // 2. Login otomatis setelah register
+      const { error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+      if (loginError) {
+        router.push("/login?registered=true"); return
+      }
+
+      router.push("/dashboard")
+    } catch (e: any) {
+      setError(e.message)
+    }
+    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
+    <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-md p-8 bg-gray-900 rounded-xl border border-gray-800">
+        <div className="flex items-center gap-2 mb-6">
+          <span className="text-blue-400 text-xl">🛡️</span>
+          <span className="font-bold text-white text-lg">Vigilix</span>
+        </div>
         <h1 className="text-2xl font-bold text-white mb-2">Buat Akun Vigilix</h1>
         <p className="text-gray-400 mb-6 text-sm">Trial 30 hari gratis, tanpa kartu kredit</p>
-        {error && <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400 text-sm">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-400 text-sm">{error}</div>
+        )}
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-400 mb-1">Nama Lengkap</label>
             <input type="text" value={fullName} onChange={e => setFullName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleRegister()}
               className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
               placeholder="Budi Santoso" />
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">Nama Organisasi / Tim</label>
             <input type="text" value={orgName} onChange={e => setOrgName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleRegister()}
               className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
               placeholder="PT Keamanan Digital" />
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleRegister()}
               className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
               placeholder="budi@perusahaan.com" />
           </div>
           <div>
             <label className="block text-sm text-gray-400 mb-1">Password</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleRegister()}
               className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
               placeholder="Minimal 8 karakter" />
           </div>
@@ -68,7 +96,8 @@ export default function RegisterPage() {
           </button>
         </div>
         <p className="mt-4 text-center text-sm text-gray-500">
-          Sudah punya akun? <Link href="/login" className="text-blue-400 hover:underline">Login</Link>
+          Sudah punya akun?{" "}
+          <Link href="/login" className="text-blue-400 hover:underline">Login</Link>
         </p>
       </div>
     </div>
