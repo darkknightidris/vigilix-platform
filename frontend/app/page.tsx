@@ -281,14 +281,18 @@ export default function LandingPage() {
       {/* CTA FINAL */}
       <section className="px-6 py-24 text-center">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-4xl font-bold mb-4">Ready to Manage Vulnerabilities the Right Way?</h2>
-          <p className="text-gray-400 mb-2">Join security teams across Southeast Asia and beyond.</p>
+          <h2 className="text-4xl font-bold mb-4">
+            Laporan Pentest Kamu Masih Berdebu di Email?
+          </h2>
+          <p className="text-xl text-gray-400 mb-2">
+            Sudah waktunya tim kamu punya dashboard yang bisa dieksekusi — bukan PDF yang dilupakan.
+          </p>
           <p className="text-gray-500 text-sm mb-8">
             🇮🇩 Indonesia · 🇲🇾 Malaysia · 🇸🇬 Singapore · 🇵🇭 Philippines · 🌏 Worldwide
           </p>
           <Link href="/register"
             className="inline-block px-10 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg transition">
-            Start Free Trial — No Credit Card Required →
+            Coba Gratis 30 Hari — Tanpa Kartu Kredit →
           </Link>
           <p className="text-gray-500 text-sm mt-4">30-day trial · Full access · Cancel anytime</p>
         </div>
@@ -313,4 +317,5 @@ export default function LandingPage() {
     </div>
   )
 }
+
 
