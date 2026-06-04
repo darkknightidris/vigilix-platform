@@ -80,16 +80,16 @@ export default function LandingPage() {
       {/* PAIN POINTS */}
       <section className="px-6 py-20">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-4">Still Managing Findings in Spreadsheets?</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">Masih Kelola Temuan Pentest Pakai Spreadsheet?</h2>
           <p className="text-gray-400 text-center mb-12 max-w-2xl mx-auto">
-            Most security teams in Asia waste 3–5 hours per week just managing vulnerability data.
-            Enterprise tools cost thousands per year — way too much for growing teams.
+            Tim security di Asia rata-rata buang 3–5 jam per minggu hanya untuk manage data vulnerability.
+            Tools enterprise harganya jutaan per bulan — terlalu mahal untuk tim yang sedang berkembang.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { icon:"😰", title:"Spreadsheets don't scale", desc:"No CVSS calculator, no status tracking, no audit trail. Sharing with clients is a nightmare." },
-              { icon:"💸", title:"Enterprise tools are overpriced", desc:"Jira, Snyk, Tenable — $100–$1,000+/month. Built for Fortune 500, priced for Fortune 500." },
-              { icon:"🌐", title:"Not built for Southeast Asia", desc:"USD pricing, no local payment methods, no support in your timezone. Vigilix changes that." },
+              { icon:"😰", title:"Spreadsheet tidak cukup", desc:"Tidak ada CVSS calculator, tidak ada status tracking, tidak ada audit trail. Berbagi laporan ke klien jadi mimpi buruk." },
+              { icon:"💸", title:"Tools enterprise terlalu mahal", desc:"Jira, Snyk, Tenable — $100–$1.000+/bulan. Dibuat untuk Fortune 500, dihargai untuk Fortune 500." },
+              { icon:"🌐", title:"Tidak dirancang untuk Asia Tenggara", desc:"Harga USD, tidak ada metode pembayaran lokal, tidak ada support di timezone kamu. Vigilix hadir untuk itu." },
             ].map(item => (
               <div key={item.title} className="p-6 bg-gray-900 rounded-xl border border-gray-800">
                 <div className="text-4xl mb-4">{item.icon}</div>
