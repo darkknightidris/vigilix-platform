@@ -1,5 +1,6 @@
 ﻿"use client"
 import TwoFactorSection from "@/components/TwoFactorSection"
+import WebhookSettings from "@/components/WebhookSettings"
 import { useEffect, useState, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -551,6 +552,12 @@ export default function SettingsPage() {
       </Section>
 
       {/* â”€â”€ 4. Danger Zone (owner only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ── Webhook Integrations ── */}
+      <Section icon={<span className="text-lg">🔗</span>} title="Webhook & Integrations">
+        <p className="text-xs text-gray-500 -mt-1">Kirim notifikasi otomatis ke Slack, Discord, atau Microsoft Teams.</p>
+        <WebhookSettings token={twoFAToken} isAdmin={isOwnerOrAdmin} />
+      </Section>
+
       {isOwner && (
         <Section icon={<IconDanger />} title="Danger Zone" danger>
           <div className="flex items-center justify-between">
