@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -106,7 +106,7 @@ function RiskGauge({ score }: { score: number }) {
   );
 }
 export default function AnalyticsDashboard({ projectId }: { projectId: string }) {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
