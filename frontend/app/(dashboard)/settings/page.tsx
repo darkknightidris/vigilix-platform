@@ -1,4 +1,5 @@
 ﻿"use client"
+import TwoFactorSection from "@/components/TwoFactorSection"
 import { useEffect, useState, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
@@ -164,6 +165,9 @@ export default function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState("")
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
+  // 2FA state
+  const [twoFAToken, setTwoFAToken] = useState<string | null>(null)
+
   // loading / toast
   const [saving, setSaving]     = useState(false)
   const [pwSaving, setPwSaving] = useState(false)
@@ -186,6 +190,8 @@ export default function SettingsPage() {
         .single()
 
       if (data) {
+        const { data: { session } } = await supabase.auth.getSession()
+        setTwoFAToken(session?.access_token || null)
         setProfile(data)
         setFullName(data.full_name || "")
         setOrgName(data.organizations?.name || "")
@@ -539,16 +545,8 @@ export default function SettingsPage() {
           ) : <><IconShield /> Ubah Password</>}
         </button>
 
-        <div className="pt-2 border-t border-gray-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-300 font-medium">Two-Factor Authentication</p>
-              <p className="text-xs text-gray-500 mt-0.5">TOTP via authenticator app â€” coming soon (Fase 2)</p>
-            </div>
-            <span className="text-xs px-2.5 py-1 bg-gray-800 border border-gray-700 text-gray-500 rounded-full">
-              Coming Soon
-            </span>
-          </div>
+                <div className="pt-2 border-t border-gray-800">
+          <TwoFactorSection token={twoFAToken} />
         </div>
       </Section>
 
