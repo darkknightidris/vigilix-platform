@@ -2,6 +2,7 @@
 import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import ProjectActions from "./ProjectActions"
+import AssignDeadlineForm from "./AssignDeadlineForm"
 
 const severityColors: Record<string,string> = {
   critical:"bg-red-600",high:"bg-orange-500",medium:"bg-yellow-500",low:"bg-blue-500",info:"bg-gray-600"
@@ -27,15 +28,16 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
   if (!project || project.organization_id !== profile?.organization_id) notFound()
 
   const { data: vulns } = await supabase
-    .from("vulnerabilities")
-    .select("*")
-    .eq("project_id", params.id)
-    .order("created_at", { ascending: false })
+    .from("vulnerabilities").select("*")
+    .eq("project_id", params.id).order("created_at", { ascending: false })
+
+  const { data: members } = await supabase
+    .from("profiles").select("id, full_name, role")
+    .eq("organization_id", profile.organization_id)
 
   const isAdmin = ["owner", "admin"].includes(profile?.role || "")
-
   const counts = { critical:0, high:0, medium:0, low:0, info:0 }
-  vulns?.forEach((v:any) => { if (counts[v.severity as keyof typeof counts] !== undefined) counts[v.severity as keyof typeof counts]++ })
+  vulns?.forEach((v:any) => { if (v.severity in counts) (counts as any)[v.severity]++ })
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -47,7 +49,13 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
             {project.description && <p className="text-gray-400 text-sm mt-1">{project.description}</p>}
           </div>
         </div>
-        {isAdmin && <ProjectActions project={project} />}
+        <div className="flex items-center gap-2">
+          <Link href={`/projects/${params.id}/kanban`}
+            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
+            📋 Kanban
+          </Link>
+          {isAdmin && <ProjectActions project={project} />}
+        </div>
       </div>
 
       <div className="grid grid-cols-5 gap-3">
@@ -72,9 +80,8 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         <div className="p-12 bg-gray-900 rounded-xl border border-gray-800 text-center">
           <p className="text-4xl mb-3">🛡️</p>
           <p className="text-white font-medium">Belum ada temuan</p>
-          <p className="text-gray-400 text-sm mt-1 mb-4">Tambahkan temuan keamanan pertama untuk project ini</p>
           <Link href={`/projects/${params.id}/vulnerabilities/new`}
-            className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
+            className="inline-block mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
             + Tambah Temuan Pertama
           </Link>
         </div>
@@ -92,15 +99,18 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
                     {v.cvss_score && <p className="text-gray-400 text-xs mt-0.5">CVSS: {v.cvss_score}</p>}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 shrink-0">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status] || ""}`}>
                     {v.status?.replace("_"," ")}
                   </span>
-                  <span className="text-gray-500 text-xs">
-                    {new Date(v.created_at).toLocaleDateString("id-ID")}
-                  </span>
+                  <span className="text-gray-500 text-xs">{new Date(v.created_at).toLocaleDateString("id-ID")}</span>
                 </div>
               </div>
+              {isAdmin && (
+                <div className="mt-3 pt-3 border-t border-gray-800">
+                  <AssignDeadlineForm vuln={v} members={members || []} />
+                </div>
+              )}
             </div>
           ))}
         </div>
