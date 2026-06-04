@@ -34,7 +34,7 @@ export default function EditProjectPage() {
     setError("")
     const { error: updateError } = await supabase
       .from("projects")
-      .update({ name: name.trim(), description: description.trim() || null, updated_at: new Date().toISOString() })
+      .update({ name: name.trim(), description: description.trim() || null })
       .eq("id", id)
     if (updateError) { setError(updateError.message); setSaving(false); return }
     router.push(`/projects/${id}`)
