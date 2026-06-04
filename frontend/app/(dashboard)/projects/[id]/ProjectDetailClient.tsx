@@ -118,6 +118,10 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition flex items-center gap-1.5">
             Share
           </button>
+                    <Link href={`/projects/${projectId}/compliance`}
+            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
+            Compliance
+          </Link>
           <Link href={`/projects/${projectId}/kanban`}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
             Kanban

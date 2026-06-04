@@ -1,9 +1,10 @@
-"use client"
+﻿"use client"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import CVSSCalculator from "@/components/CVSSCalculator"
+import ComplianceTags from "@/components/ComplianceTags"
 
 const severityOptions = ["critical","high","medium","low","info"]
 const severityColors: Record<string,string> = {
@@ -46,6 +47,7 @@ export default function NewVulnerabilityPage() {
       project_id: id,
       reported_by: user.id,
       status: "open",
+      compliance_tags: complianceTags,
     })
     if (insertError) { setError(insertError.message); setLoading(false); return }
     router.push(`/projects/${id}`)
@@ -107,6 +109,9 @@ export default function NewVulnerabilityPage() {
           </div>
         </div>
 
+                <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
+          <ComplianceTags value={complianceTags} onChange={setComplianceTags} />
+        </div>
         <div className="flex gap-3">
           <button onClick={handleSubmit} disabled={loading}
             className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg transition">
