@@ -1,6 +1,17 @@
-﻿from fastapi import FastAPI
+﻿import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.starlette import StarletteIntegration
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import report
+import os
+
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN", ""),
+    integrations=[StarletteIntegration(), FastApiIntegration()],
+    traces_sample_rate=0.1,
+    environment=os.getenv("ENVIRONMENT", "production"),
+)
 
 app = FastAPI(title="Vigilix API")
 
