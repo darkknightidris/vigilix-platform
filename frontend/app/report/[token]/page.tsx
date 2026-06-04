@@ -1,0 +1,117 @@
+﻿import { createClient } from "@/lib/supabase/server"
+import { notFound } from "next/navigation"
+
+const severityColors: Record<string,string> = {
+  critical:"#dc2626", high:"#f97316", medium:"#eab308", low:"#3b82f6", info:"#6b7280"
+}
+
+export default async function PublicReportPage({ params }: { params: { token: string } }) {
+  const supabase = await createClient()
+
+  const { data: shared } = await supabase
+    .from("shared_reports").select("*, projects(name, description)")
+    .eq("token", params.token).single()
+
+  if (!shared) notFound()
+  if (shared.expires_at && new Date(shared.expires_at) < new Date()) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-6xl mb-4">⏰</p>
+          <p className="text-white text-xl font-semibold">Link Expired</p>
+          <p className="text-gray-400 text-sm mt-2">This report link has expired.</p>
+        </div>
+      </div>
+    )
+  }
+
+  await supabase.from("shared_reports")
+    .update({ view_count: (shared.view_count || 0) + 1 })
+    .eq("token", params.token)
+
+  const { data: vulns } = await supabase
+    .from("vulnerabilities").select("*")
+    .eq("project_id", shared.project_id)
+    .order("created_at", { ascending: false })
+
+  const counts = { critical:0, high:0, medium:0, low:0, info:0 }
+  vulns?.forEach((v:any) => { if (v.severity in counts) (counts as any)[v.severity]++ })
+
+  const project = shared.projects as any
+
+  return (
+    <div className="min-h-screen bg-gray-950 text-white">
+      <div className="max-w-5xl mx-auto px-6 py-12">
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-8">
+          <span className="text-blue-400 text-2xl">🛡️</span>
+          <span className="font-bold text-xl">Vigilix</span>
+          <span className="ml-auto px-3 py-1 bg-gray-800 text-gray-400 text-xs rounded-full">
+            Read-only Report
+          </span>
+        </div>
+
+        {/* Project info */}
+        <div className="p-6 bg-gray-900 rounded-xl border border-gray-800 mb-6">
+          <h1 className="text-2xl font-bold text-white">{project?.name}</h1>
+          {project?.description && <p className="text-gray-400 text-sm mt-1">{project.description}</p>}
+          {shared.expires_at && (
+            <p className="text-gray-500 text-xs mt-2">
+              Link expires: {new Date(shared.expires_at).toLocaleDateString("en-US", { dateStyle: "long" })}
+            </p>
+          )}
+        </div>
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-5 gap-3 mb-6">
+          {Object.entries(counts).map(([sev, count]) => (
+            <div key={sev} className="p-4 bg-gray-900 rounded-xl border border-gray-800 text-center">
+              <div className="w-2 h-2 rounded-full mx-auto mb-2" style={{background: severityColors[sev]}} />
+              <p className="text-white font-bold text-xl">{count}</p>
+              <p className="text-gray-400 text-xs capitalize">{sev}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Findings table */}
+        <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
+          <h2 className="text-white font-semibold mb-4">Findings ({vulns?.length || 0})</h2>
+          {!vulns || vulns.length === 0 ? (
+            <p className="text-gray-500 text-sm text-center py-8">No findings in this report.</p>
+          ) : (
+            <div className="space-y-3">
+              {vulns.map((v: any, i: number) => (
+                <div key={v.id} className="p-4 bg-gray-800 rounded-lg">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <span className="text-gray-500 text-sm mt-0.5 shrink-0">#{i+1}</span>
+                      <div>
+                        <p className="text-white font-medium">{v.title}</p>
+                        {v.description && (
+                          <p className="text-gray-400 text-xs mt-1 line-clamp-2">{v.description}</p>
+                        )}
+                        {v.cvss_score && <p className="text-gray-500 text-xs mt-1">CVSS: {v.cvss_score}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="px-2 py-0.5 rounded text-xs font-bold uppercase text-white"
+                        style={{background: severityColors[v.severity] || "#6b7280"}}>
+                        {v.severity}
+                      </span>
+                      <span className="text-gray-500 text-xs capitalize">{v.status?.replace("_"," ")}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <p className="text-center text-gray-600 text-xs mt-8">
+          Generated by Vigilix · Vulnerability Management Platform
+        </p>
+      </div>
+    </div>
+  )
+}

@@ -14,17 +14,25 @@ export default function AssignDeadlineForm({ vuln, members }: { vuln: any, membe
 
   const handleSave = async () => {
     setSaving(true)
+    const prevAssigned = vuln.assigned_to
     await supabase.from("vulnerabilities").update({
       assigned_to: assignedTo || null,
       due_date: dueDate || null,
       status,
     }).eq("id", vuln.id)
+
+    if (assignedTo && assignedTo !== prevAssigned) {
+      await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vuln_id: vuln.id, type: "assigned" }),
+      })
+    }
+
     setSaving(false)
     setSaved(true)
     setTimeout(() => { setSaved(false); router.refresh() }, 1500)
   }
-
-  const statusOptions = ["open","in_progress","fixed","closed"]
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -47,14 +55,14 @@ export default function AssignDeadlineForm({ vuln, members }: { vuln: any, membe
         <label className="text-xs text-gray-500">Status:</label>
         <select value={status} onChange={e => setStatus(e.target.value)}
           className="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-white text-xs focus:outline-none focus:border-blue-500">
-          {statusOptions.map(s => (
+          {["open","in_progress","fixed","closed"].map(s => (
             <option key={s} value={s}>{s.replace("_"," ")}</option>
           ))}
         </select>
       </div>
       <button onClick={handleSave} disabled={saving}
         className="px-3 py-1 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs rounded transition">
-        {saving ? "..." : saved ? "✓ Tersimpan" : "Simpan"}
+        {saving ? "..." : saved ? "✓ Saved" : "Save"}
       </button>
     </div>
   )

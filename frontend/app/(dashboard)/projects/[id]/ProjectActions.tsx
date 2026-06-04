@@ -3,6 +3,7 @@ import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import ShareReportButton from "@/components/ShareReportButton"
 
 export default function ProjectActions({ project }: { project: any }) {
   const [editing, setEditing] = useState(false)
@@ -16,9 +17,7 @@ export default function ProjectActions({ project }: { project: any }) {
     if (!name.trim()) return
     setLoading(true)
     await supabase.from("projects").update({ name: name.trim() }).eq("id", project.id)
-    setLoading(false)
-    setEditing(false)
-    router.refresh()
+    setLoading(false); setEditing(false); router.refresh()
   }
 
   const handleDelete = async () => {
@@ -33,17 +32,18 @@ export default function ProjectActions({ project }: { project: any }) {
         className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500 w-48" />
       <button onClick={handleUpdate} disabled={loading}
         className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition">
-        {loading ? "..." : "Simpan"}
+        {loading ? "..." : "Save"}
       </button>
       <button onClick={() => setEditing(false)}
         className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition">
-        Batal
+        Cancel
       </button>
     </div>
   )
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-wrap">
+      <ShareReportButton projectId={project.id} />
       <Link href={`/projects/${project.id}/import`}
         className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
         📥 Import CSV
@@ -54,20 +54,20 @@ export default function ProjectActions({ project }: { project: any }) {
       </button>
       {showDelete ? (
         <div className="flex items-center gap-2">
-          <span className="text-red-400 text-sm">Yakin hapus?</span>
+          <span className="text-red-400 text-sm">Delete?</span>
           <button onClick={handleDelete} disabled={loading}
             className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition">
-            {loading ? "..." : "Hapus"}
+            {loading ? "..." : "Yes, Delete"}
           </button>
           <button onClick={() => setShowDelete(false)}
             className="px-3 py-1.5 bg-gray-700 text-gray-300 text-sm rounded-lg transition">
-            Batal
+            Cancel
           </button>
         </div>
       ) : (
         <button onClick={() => setShowDelete(true)}
           className="px-3 py-1.5 bg-gray-800 hover:bg-red-900/50 hover:text-red-400 text-gray-300 text-sm rounded-lg transition">
-          Hapus
+          Delete
         </button>
       )}
     </div>
