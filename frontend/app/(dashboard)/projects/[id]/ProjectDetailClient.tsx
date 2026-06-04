@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import AnalyticsDashboard from "@/components/AnalyticsDashboard"
 import { useState, useTransition } from "react"
 import Link from "next/link"
@@ -26,11 +26,39 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
   const [deleting, setDeleting] = useState(false)
   const [updating, setUpdating] = useState(false)
   const [toast, setToast] = useState<{msg:string,ok:boolean}|null>(null)
+  const [shareUrl, setShareUrl] = useState<string|null>(null)
+  const [shareLoading, setShareLoading] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [copied, setCopied] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
   const showToast = (msg: string, ok = true) => {
-    setToast({msg,ok})
+    setToast({msg,ok}
+  const handleShare = async () => {
+    setShareLoading(true)
+    setShowShareModal(true)
+    const { data: existing } = await supabase
+      .from("shared_reports").select("token").eq("project_id", projectId).maybeSingle()
+    if (existing?.token) {
+      setShareUrl(`${window.location.origin}/report/${existing.token}`)
+      setShareLoading(false)
+      return
+    }
+    const token = crypto.randomUUID()
+    const { error } = await supabase.from("shared_reports").insert({
+      project_id: projectId, token, view_count: 0,
+    })
+    if (error) { showToast("Gagal membuat link", false); setShowShareModal(false) }
+    else setShareUrl(`${window.location.origin}/report/${token}`)
+    setShareLoading(false)
+  }
+  const handleCopy = () => {
+    if (!shareUrl) return
+    navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  })
     setTimeout(() => setToast(null), 3000)
   }
 
@@ -95,6 +123,10 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
         </div>
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <GeneratePDFButton projectId={projectId} projectName={project.name} orgName={orgName} />
+          <button onClick={handleShare}
+            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition flex items-center gap-1.5">
+            🔗 Share
+          </button>
           <Link href={`/projects/${projectId}/kanban`}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
             ?? Kanban
@@ -227,6 +259,29 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
           ))}
         </div>
       )}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-gray-950 border border-gray-800 rounded-2xl w-full max-w-md p-6 space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-white font-semibold">Share Project</h2>
+              <button onClick={() => setShowShareModal(false)} className="text-gray-500 hover:text-white text-xl">x</button>
+            </div>
+            <p className="text-gray-400 text-sm">Link ini bisa dibuka siapa saja tanpa login. Hanya bisa membaca, tidak bisa mengedit.</p>
+            {shareLoading ? (
+              <div className="flex items-center justify-center h-16 text-gray-500 text-sm">Membuat link...</div>
+            ) : (
+              <div className="flex gap-2">
+                <input readOnly value={shareUrl || ""} className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-gray-300 text-sm font-mono focus:outline-none" />
+                <button onClick={handleCopy} className={`px-4 py-2 rounded-lg text-sm font-medium transition ${copied ? "bg-green-700 text-white" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
+                  {copied ? "Copied!" : "Copy"}
+                </button>
+              </div>
+            )}
+            <p className="text-gray-600 text-xs">Link tidak punya expiry — aktif selamanya sampai dihapus manual.</p>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
