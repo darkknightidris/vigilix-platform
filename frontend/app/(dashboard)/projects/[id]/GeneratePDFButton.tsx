@@ -37,7 +37,7 @@ export default function GeneratePDFButton({ projectId, projectName, orgName }: {
         }))
       }
 
-      const res = await fetch("http://localhost:8000/api/report/generate", {
+      const res = await fetch("https://vigilix-platform-production.up.railway.app/api/report/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
