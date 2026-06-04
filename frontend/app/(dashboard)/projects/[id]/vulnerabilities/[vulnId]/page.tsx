@@ -102,6 +102,7 @@ export default async function VulnDetailPage({
 
       <VulnDetailClient
         vuln={vuln}
+        userRole={profile?.role || "member"}
         projectId={params.id}
         comments={comments || []}
         attachments={attachments || []}
