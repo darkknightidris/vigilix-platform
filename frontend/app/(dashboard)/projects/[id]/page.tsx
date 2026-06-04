@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import ProjectActions from "./ProjectActions"
 import AssignDeadlineForm from "./AssignDeadlineForm"
+import GeneratePDFButton from "./GeneratePDFButton"
 import { Suspense } from "react"
 import VulnFilters from "@/components/VulnFilters"
 
@@ -27,33 +28,30 @@ export default async function ProjectDetailPage({
   if (!user) redirect("/login")
 
   const { data: profile } = await supabase
-    .from("profiles").select("organization_id, role").eq("id", user.id).single()
+    .from("profiles").select("organization_id, role, organizations(name)").eq("id", user.id).single()
 
   const { data: project } = await supabase
     .from("projects").select("*").eq("id", params.id).single()
 
   if (!project || project.organization_id !== profile?.organization_id) notFound()
 
-  let query = supabase.from("vulnerabilities").select("*")
-    .eq("project_id", params.id)
-
+  let query = supabase.from("vulnerabilities").select("*").eq("project_id", params.id)
   if (searchParams.severity) query = query.eq("severity", searchParams.severity)
   if (searchParams.status) query = query.eq("status", searchParams.status)
   if (searchParams.q) query = query.ilike("title", `%${searchParams.q}%`)
-
   const { data: vulns } = await query.order("created_at", { ascending: false })
 
   const { data: allVulns } = await supabase
     .from("vulnerabilities").select("severity").eq("project_id", params.id)
 
   const { data: members } = await supabase
-    .from("profiles").select("id, full_name, role")
-    .eq("organization_id", profile.organization_id)
+    .from("profiles").select("id, full_name, role").eq("organization_id", profile.organization_id)
 
   const isAdmin = ["owner", "admin"].includes(profile?.role || "")
   const counts = { critical:0, high:0, medium:0, low:0, info:0 }
   allVulns?.forEach((v:any) => { if (v.severity in counts) (counts as any)[v.severity]++ })
   const isFiltered = searchParams.severity || searchParams.status || searchParams.q
+  const orgName = (profile?.organizations as any)?.name || "Vigilix"
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -65,7 +63,8 @@ export default async function ProjectDetailPage({
             {project.description && <p className="text-gray-400 text-sm mt-1">{project.description}</p>}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <GeneratePDFButton projectId={params.id} projectName={project.name} orgName={orgName} />
           <Link href={`/projects/${params.id}/kanban`}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
             📋 Kanban
