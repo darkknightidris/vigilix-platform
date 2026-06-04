@@ -462,3 +462,7 @@ def generate_report(
 
 # ── Import yang dibutuhkan di atas tapi lupa ──────────────────────────────────
 import math
+
+
+# Alias untuk kompatibilitas dengan report.py yang sudah ada
+generate_pdf = generate_report
