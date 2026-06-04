@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 export default function ProjectActions({ project }: { project: any }) {
   const [editing, setEditing] = useState(false)
@@ -43,6 +44,10 @@ export default function ProjectActions({ project }: { project: any }) {
 
   return (
     <div className="flex items-center gap-2">
+      <Link href={`/projects/${project.id}/import`}
+        className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
+        📥 Import CSV
+      </Link>
       <button onClick={() => setEditing(true)}
         className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
         Edit
