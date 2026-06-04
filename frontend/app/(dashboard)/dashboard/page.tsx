@@ -1,7 +1,7 @@
 ﻿import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import LogoutButton from "./dashboard/LogoutButton"
-import InviteForm from "./dashboard/InviteForm"
+import LogoutButton from "./LogoutButton"
+import InviteForm from "./InviteForm"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -33,8 +33,6 @@ export default async function DashboardPage() {
         </div>
         <LogoutButton />
       </div>
-
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="p-5 bg-gray-900 rounded-xl border border-gray-800">
           <p className="text-gray-400 text-sm">Total Project</p>
@@ -53,7 +51,6 @@ export default async function DashboardPage() {
           </p>
         </div>
       </div>
-
       {isAdmin && <InviteForm />}
     </div>
   )
