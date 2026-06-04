@@ -3,4 +3,4 @@ uvicorn[standard]
 weasyprint
 supabase
 python-dotenv
-pydantic
+pydanticsentry-sdk[fastapi]==2.61.1
