@@ -1,7 +1,7 @@
-﻿"use client"
+"use client"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import CVSSCalculator from "@/components/CVSSCalculator"
 
@@ -10,7 +10,9 @@ const severityColors: Record<string,string> = {
   critical:"bg-red-600",high:"bg-orange-500",medium:"bg-yellow-500",low:"bg-blue-500",info:"bg-gray-500"
 }
 
-export default function NewVulnerabilityPage({ params }: { params: { id: string } }) {
+export default function NewVulnerabilityPage() {
+  const params = useParams()
+  const id = params.id as string
   const [title, setTitle] = useState("")
   const [severity, setSeverity] = useState("medium")
   const [cvssScore, setCvssScore] = useState(0)
@@ -41,18 +43,18 @@ export default function NewVulnerabilityPage({ params }: { params: { id: string 
       cvss_vector: cvssVector || null,
       description: description.trim() || null,
       steps_to_reproduce: steps.trim() || null,
-      project_id: params.id,
+      project_id: id,
       reported_by: user.id,
       status: "open",
     })
     if (insertError) { setError(insertError.message); setLoading(false); return }
-    router.push(`/projects/${params.id}`)
+    router.push(`/projects/${id}`)
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <Link href={`/projects/${params.id}`} className="text-gray-400 hover:text-white transition">←</Link>
+        <Link href={`/projects/${id}`} className="text-gray-400 hover:text-white transition">?</Link>
         <h1 className="text-2xl font-bold text-white">Tambah Temuan Baru</h1>
       </div>
 
@@ -110,7 +112,7 @@ export default function NewVulnerabilityPage({ params }: { params: { id: string 
             className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg transition">
             {loading ? "Menyimpan..." : "Simpan Temuan"}
           </button>
-          <Link href={`/projects/${params.id}`}
+          <Link href={`/projects/${id}`}
             className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition">
             Batal
           </Link>
