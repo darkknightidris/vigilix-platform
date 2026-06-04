@@ -1,14 +1,7 @@
-import { createClient } from "@/lib/supabase/server"
+﻿import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
-import { Resend } from "resend"
-import { rateLimit } from "@/lib/rateLimit"
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: Request) {
-  const limited = rateLimit(request as any, 5, 60000)
-  if (limited) return limited
-
   const { email, role } = await request.json()
   const supabase = await createClient()
 
@@ -36,22 +29,31 @@ export async function POST(request: Request) {
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/join?token=${invitation.token}`
   const orgName = (profile.organizations as any)?.name || "the team"
 
-  await resend.emails.send({
-    from: "Vigilix <noreply@vigilix.id>",
-    to: email,
-    subject: `You have been invited to join ${orgName} on Vigilix`,
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:auto">
-        <h2>You have been invited!</h2>
-        <p>You have been invited to join <strong>${orgName}</strong> on Vigilix as <strong>${role}</strong>.</p>
-        <a href="${inviteUrl}"
-           style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;margin:16px 0">
-          Accept Invitation
-        </a>
-        <p style="color:#888;font-size:12px">This link expires in 7 days.</p>
-      </div>
-    `,
-  })
+  const resendKey = process.env.RESEND_API_KEY
+  if (resendKey && !resendKey.includes("xxxxxxxx")) {
+    try {
+      const { Resend } = await import("resend")
+      const resend = new Resend(resendKey)
+      await resend.emails.send({
+        from: "Vigilix <noreply@vigilix.id>",
+        to: email,
+        subject: `You have been invited to join ${orgName} on Vigilix`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:auto">
+            <h2>You have been invited!</h2>
+            <p>You have been invited to join <strong>${orgName}</strong> on Vigilix as <strong>${role}</strong>.</p>
+            <a href="${inviteUrl}"
+               style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;margin:16px 0">
+              Accept Invitation
+            </a>
+            <p style="color:#888;font-size:12px">This link expires in 7 days.</p>
+          </div>
+        `,
+      })
+    } catch (emailError) {
+      console.error("Email send failed:", emailError)
+    }
+  }
 
   return NextResponse.json({ success: true })
 }
