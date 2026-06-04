@@ -34,7 +34,9 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
   const supabase = createClient()
 
   const showToast = (msg: string, ok = true) => {
-    setToast({msg,ok}
+    setToast({msg,ok})
+    setTimeout(() => setToast(null), 3000)
+  }
   const handleShare = async () => {
     setShareLoading(true)
     setShowShareModal(true)
