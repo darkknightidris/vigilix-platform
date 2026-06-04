@@ -2,12 +2,13 @@
 import { useState, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import RemediationTracker from "@/components/RemediationTracker"
 
 export default function VulnDetailClient({
-  vuln, projectId, comments, attachments, logs, members, currentUserId
+  vuln, projectId, comments, attachments, logs, members, currentUserId, userRole
 }: {
   vuln: any, projectId: string, comments: any[], attachments: any[],
-  logs: any[], members: any[], currentUserId: string
+  logs: any[], members: any[], currentUserId: string, userRole: string
 }) {
   const [comment, setComment] = useState("")
   const [submitting, setSubmitting] = useState(false)
@@ -76,6 +77,14 @@ export default function VulnDetailClient({
 
   return (
     <div className="space-y-6">
+      {/* Remediation Tracking */}
+      <RemediationTracker
+        vulnId={vuln.id}
+        initialStatus={vuln.remediation_status ?? "open"}
+        initialSlaDeadline={vuln.sla_deadline}
+        initialSlaNote={vuln.sla_note}
+        isAdmin={userRole === "Admin"}
+      />
       {/* Attachments */}
       <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
         <div className="flex justify-between items-center mb-4">
