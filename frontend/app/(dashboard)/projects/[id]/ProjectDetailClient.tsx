@@ -1,12 +1,11 @@
 ﻿"use client"
 import AnalyticsDashboard from "@/components/AnalyticsDashboard"
-import { useState, useTransition } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import AssignDeadlineForm from "./AssignDeadlineForm"
 import GeneratePDFButton from "./GeneratePDFButton"
-
 const severityColors: Record<string,string> = {
   critical:"bg-red-600",high:"bg-orange-500",medium:"bg-yellow-500",low:"bg-blue-500",info:"bg-gray-600"
 }
@@ -16,7 +15,6 @@ const statusColors: Record<string,string> = {
   fixed:"bg-green-900/50 text-green-400",
   closed:"bg-gray-700 text-gray-400"
 }
-
 export default function ProjectDetailClient({ project, vulns: initialVulns, members, isAdmin, orgName, projectId, counts }: {
   project: any, vulns: any[], members: any[], isAdmin: boolean, orgName: string, projectId: string, counts: Record<string,number>
 }) {
@@ -32,7 +30,6 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
   const [copied, setCopied] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-
   const showToast = (msg: string, ok = true) => {
     setToast({msg,ok})
     setTimeout(() => setToast(null), 3000)
@@ -60,10 +57,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
     navigator.clipboard.writeText(shareUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  })
-    setTimeout(() => setToast(null), 3000)
   }
-
   const toggleSelect = (id: string) => {
     setSelected(prev => {
       const next = new Set(prev)
@@ -71,12 +65,10 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
       return next
     })
   }
-
   const toggleAll = () => {
     if (selected.size === vulns.length) setSelected(new Set())
     else setSelected(new Set(vulns.map(v => v.id)))
   }
-
   const handleBulkDelete = async () => {
     if (!confirm(`Hapus ${selected.size} temuan? Tindakan ini tidak bisa dibatalkan.`)) return
     setDeleting(true)
@@ -90,7 +82,6 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
     }
     setDeleting(false)
   }
-
   const handleBulkStatus = async () => {
     if (!bulkStatus) return
     setUpdating(true)
@@ -105,7 +96,6 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
     }
     setUpdating(false)
   }
-
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {toast && (
@@ -113,7 +103,6 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
           {toast.msg}
         </div>
       )}
-
       {/* Header */}
       <div className="flex justify-between items-start">
         <div className="flex items-center gap-3">
@@ -127,11 +116,11 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
           <GeneratePDFButton projectId={projectId} projectName={project.name} orgName={orgName} />
           <button onClick={handleShare}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition flex items-center gap-1.5">
-            🔗 Share
+            Share
           </button>
           <Link href={`/projects/${projectId}/kanban`}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
-            ?? Kanban
+            Kanban
           </Link>
           <Link href={`/projects/${projectId}/import`}
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
@@ -147,7 +136,6 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
           )}
         </div>
       </div>
-
       {/* Severity counts */}
       <div className="grid grid-cols-5 gap-3">
         {Object.entries(counts).map(([sev, count]) => (
@@ -160,9 +148,6 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
       </div>
       {/* Analytics */}
       <AnalyticsDashboard projectId={projectId} />
-
-
-
       {/* Bulk action bar */}
       {selected.size > 0 && isAdmin && (
         <div className="flex items-center gap-3 p-3 bg-indigo-950/40 border border-indigo-700/50 rounded-xl flex-wrap">
@@ -182,7 +167,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
             </button>
             <button onClick={handleBulkDelete} disabled={deleting}
               className="px-3 py-1.5 bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-sm rounded-lg transition flex items-center gap-1">
-              {deleting ? "Menghapus..." : `?? Hapus (${selected.size})`}
+              {deleting ? "Menghapus..." : `Hapus (${selected.size})`}
             </button>
             <button onClick={() => setSelected(new Set())}
               className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition">
@@ -191,7 +176,6 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
           </div>
         </div>
       )}
-
       {/* Header list */}
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
@@ -207,11 +191,10 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
           + Tambah Temuan
         </Link>
       </div>
-
       {/* Vuln list */}
       {vulns.length === 0 ? (
         <div className="p-12 bg-gray-900 rounded-xl border border-gray-800 text-center">
-          <p className="text-4xl mb-3">??</p>
+          <p className="text-4xl mb-3">📋</p>
           <p className="text-white font-medium">Belum ada temuan</p>
           <Link href={`/projects/${projectId}/vulnerabilities/new`}
             className="inline-block mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
@@ -247,7 +230,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
                   {isAdmin && (
                     <Link href={`/projects/${projectId}/vulnerabilities/${v.id}`}
                       className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-blue-950/30 rounded-lg transition text-xs">
-                      ??
+                      Edit
                     </Link>
                   )}
                 </div>
@@ -279,12 +262,10 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
                 </button>
               </div>
             )}
-            <p className="text-gray-600 text-xs">Link tidak punya expiry — aktif selamanya sampai dihapus manual.</p>
+            <p className="text-gray-600 text-xs">Link aktif selamanya sampai dihapus manual.</p>
           </div>
         </div>
       )}
-
     </div>
   )
 }
-
