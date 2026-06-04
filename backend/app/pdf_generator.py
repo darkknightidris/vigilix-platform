@@ -32,7 +32,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 
 # Import renderer logo Vigilix
-from vigilix_logo_renderer import draw_vigilix_logo
+import sys, os; sys.path.insert(0, os.path.dirname(__file__)); from vigilix_logo_renderer import draw_vigilix_logo
 
 # ── Konstanta warna ───────────────────────────────────────────────────────────
 C_PURPLE      = HexColor("#534AB7")
