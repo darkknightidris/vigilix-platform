@@ -90,15 +90,16 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
           {vulns.map((v: any) => (
             <div key={v.id} className="p-5 bg-gray-900 rounded-xl border border-gray-800 hover:border-gray-600 transition">
               <div className="flex justify-between items-start gap-4">
-                <div className="flex items-start gap-3 flex-1">
-                  <span className={`mt-1 px-2 py-0.5 rounded text-xs font-bold uppercase text-white ${severityColors[v.severity] || "bg-gray-600"}`}>
+                <Link href={`/projects/${params.id}/vulnerabilities/${v.id}`}
+                  className="flex items-start gap-3 flex-1 group">
+                  <span className={`mt-1 px-2 py-0.5 rounded text-xs font-bold uppercase text-white shrink-0 ${severityColors[v.severity] || "bg-gray-600"}`}>
                     {v.severity}
                   </span>
                   <div>
-                    <p className="text-white font-medium">{v.title}</p>
+                    <p className="text-white font-medium group-hover:text-blue-400 transition">{v.title}</p>
                     {v.cvss_score && <p className="text-gray-400 text-xs mt-0.5">CVSS: {v.cvss_score}</p>}
                   </div>
-                </div>
+                </Link>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status] || ""}`}>
                     {v.status?.replace("_"," ")}
