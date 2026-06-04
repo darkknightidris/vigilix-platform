@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+﻿import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 
@@ -11,7 +11,6 @@ export async function POST(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  // Ambil org_id dari profil user yang sedang login
   const { data: profile } = await supabase
     .from("profiles")
     .select("organization_id, role, organizations(name)")
@@ -22,7 +21,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Hanya admin yang bisa invite" }, { status: 403 })
   }
 
-  // Insert ke tabel invitations
   const { data: invitation, error } = await supabase
     .from("invitations")
     .insert({
@@ -39,7 +37,6 @@ export async function POST(request: Request) {
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/join?token=${invitation.token}`
   const orgName = (profile.organizations as any)?.name || "tim kami"
 
-  // Kirim email via Resend
   await resend.emails.send({
     from: "Vigilix <noreply@vigilix.id>",
     to: email,
@@ -48,7 +45,7 @@ export async function POST(request: Request) {
       <div style="font-family:sans-serif;max-width:480px;margin:auto">
         <h2>Undangan Bergabung</h2>
         <p>Kamu diundang bergabung ke organisasi <strong>${orgName}</strong> di Vigilix sebagai <strong>${role}</strong>.</p>
-        <a href="${inviteUrl}" 
+        <a href="${inviteUrl}"
            style="display:inline-block;padding:12px 24px;background:#2563eb;color:white;border-radius:8px;text-decoration:none;margin:16px 0">
           Terima Undangan
         </a>
