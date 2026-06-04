@@ -1,4 +1,4 @@
-﻿import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   const orgName = (profile.organizations as any)?.name || "tim kami"
 
   await resend.emails.send({
-    from: "Vigilix <noreply@vigilix.id>",
+    from: "Vigilix <onboarding@resend.dev>",
     to: email,
     subject: `Kamu diundang bergabung ke ${orgName} di Vigilix`,
     html: `
