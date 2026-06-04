@@ -32,15 +32,14 @@ export default function LandingPage() {
       <section className="px-6 py-24 text-center">
         <div className="max-w-4xl mx-auto">
           <div className="inline-block px-3 py-1 bg-blue-600/20 border border-blue-600/30 rounded-full text-blue-400 text-xs font-medium mb-6">
-            🌏 Built for Security Teams in Southeast Asia & Beyond
+            🌏 Dibuat untuk Tim Security di Asia Tenggara & Seluruh Dunia
           </div>
           <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
-            Vulnerability Management
-            <span className="text-blue-400"> That Actually Fits</span>
+            Ubah Laporan Pentest yang Menumpuk
+            <span className="text-blue-400"> Jadi Dashboard yang Bisa Dieksekusi</span>
           </h1>
           <p className="text-xl text-gray-400 mb-4 max-w-2xl mx-auto leading-relaxed">
-            The affordable, structured alternative to spreadsheets and overpriced enterprise tools.
-            Built by security practitioners, for security teams worldwide.
+            Kalau CEO tanya <span className="text-white font-medium">&quot;Kondisi keamanan kita gimana hari ini?&quot;</span> — tim kamu bisa jawab dalam 10 detik. Bukan PDF ratusan halaman. Bukan spreadsheet yang berdebu.
           </p>
           <p className="text-sm text-gray-500 mb-10">
             🇮🇩 Indonesia · 🇲🇾 Malaysia · 🇸🇬 Singapore · 🇵🇭 Philippines · 🇹🇭 Thailand · and beyond
