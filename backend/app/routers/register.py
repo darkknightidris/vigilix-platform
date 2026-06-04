@@ -117,6 +117,63 @@ async def register(body: RegisterRequest):
     except Exception:
         pass  # Email gagal tidak boleh block register
 
+        # Kirim email welcome ke user
+    try:
+        import httpx
+        resend_key = os.environ.get("RESEND_API_KEY", "")
+        if resend_key:
+            async with httpx.AsyncClient() as client:
+                # Email welcome ke user
+                await client.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+                    json={
+                        "from": "Vigilix <noreply@vigilix.id>",
+                        "to": [body.email],
+                        "subject": "Selamat datang di Vigilix! 🛡️",
+                        "html": f"""
+                        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+                            <h2 style="color:#534AB7">Selamat datang di Vigilix, {body.full_name}! 🛡️</h2>
+                            <p>Akun kamu sudah berhasil dibuat. Kamu mendapat <strong>30 hari free trial</strong> untuk explore semua fitur.</p>
+                            <p><strong>Yang bisa kamu lakukan sekarang:</strong></p>
+                            <ul>
+                                <li>Buat project pertama kamu</li>
+                                <li>Tambah temuan keamanan</li>
+                                <li>Invite anggota tim</li>
+                                <li>Export PDF report</li>
+                            </ul>
+                            <a href="https://www.vigilix.id/dashboard" style="background:#534AB7;color:white;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;margin:16px 0">Mulai Sekarang →</a>
+                            <p style="color:#666;font-size:14px">Ada pertanyaan? Balas email ini atau hubungi idris092004@vigilix.id</p>
+                            <p style="color:#666;font-size:14px">— Idris, Founder Vigilix</p>
+                        </div>
+                        """
+                    }
+                )
+                # Notifikasi ke founder
+                await client.post(
+                    "https://api.resend.com/emails",
+                    headers={"Authorization": f"Bearer {resend_key}", "Content-Type": "application/json"},
+                    json={
+                        "from": "Vigilix System <noreply@vigilix.id>",
+                        "to": ["idris092004@vigilix.id"],
+                        "subject": f"🎉 User baru daftar: {body.full_name}",
+                        "html": f"""
+                        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+                            <h2 style="color:#534AB7">Ada user baru di Vigilix! 🎉</h2>
+                            <table style="width:100%;border-collapse:collapse">
+                                <tr><td style="padding:8px;border:1px solid #eee"><strong>Nama</strong></td><td style="padding:8px;border:1px solid #eee">{body.full_name}</td></tr>
+                                <tr><td style="padding:8px;border:1px solid #eee"><strong>Email</strong></td><td style="padding:8px;border:1px solid #eee">{body.email}</td></tr>
+                                <tr><td style="padding:8px;border:1px solid #eee"><strong>Organisasi</strong></td><td style="padding:8px;border:1px solid #eee">{body.org_name}</td></tr>
+                            </table>
+                            <p style="color:#666;font-size:14px;margin-top:16px">Cek Supabase dashboard untuk detail lengkap.</p>
+                        </div>
+                        """
+                    }
+                )
+    except Exception:
+        pass  # Email gagal tidak boleh block register
+
     return {"success": True, "message": "Akun berhasil dibuat. Silakan login."}
+
 
 
