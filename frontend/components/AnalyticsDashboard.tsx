@@ -1,116 +1,77 @@
-"use client";
+ï»¿"use client";
 
 import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 
 interface Vuln {
-  id: string;
-  severity: string;
-  status: string;
-  created_at: string;
-  resolved_at: string | null;
-  updated_at: string;
+  id: string; severity: string; status: string;
+  created_at: string; resolved_at: string | null; updated_at: string;
 }
-
 interface AnalyticsData {
-  totalOpen: number;
-  totalResolved: number;
-  mttrDays: number | null;
+  totalOpen: number; totalResolved: number; mttrDays: number | null;
   mttrBySeverity: { severity: string; mttr: number }[];
   trendData: { month: string; critical: number; high: number; medium: number; low: number }[];
   severityDist: { name: string; value: number; color: string }[];
   statusDist: { name: string; value: number }[];
-  riskScore: number;
-  slaBreached: number;
+  riskScore: number; slaBreached: number;
 }
-
 const SEVERITY_COLORS: Record<string, string> = {
-  critical: "#ef4444",
-  high: "#f97316",
-  medium: "#eab308",
-  low: "#22c55e",
-  info: "#3b82f6",
+  critical: "#ef4444", high: "#f97316", medium: "#eab308", low: "#22c55e", info: "#3b82f6",
 };
-
 const SEVERITY_ORDER = ["critical", "high", "medium", "low", "info"];
-
 function diffDays(a: string, b: string): number {
   return (new Date(b).getTime() - new Date(a).getTime()) / (1000 * 60 * 60 * 24);
 }
-
 function computeAnalytics(vulns: Vuln[]): AnalyticsData {
   const open = vulns.filter((v) => v.status !== "resolved" && v.status !== "closed");
   const resolved = vulns.filter((v) => v.resolved_at);
-
-  const mttrDays =
-    resolved.length > 0
-      ? resolved.reduce((sum, v) => sum + diffDays(v.created_at, v.resolved_at!), 0) / resolved.length
-      : null;
-
+  const mttrDays = resolved.length > 0
+    ? resolved.reduce((sum, v) => sum + diffDays(v.created_at, v.resolved_at!), 0) / resolved.length
+    : null;
   const mttrBySeverity = SEVERITY_ORDER.map((sev) => {
     const group = resolved.filter((v) => v.severity?.toLowerCase() === sev);
     if (group.length === 0) return null;
     const avg = group.reduce((sum, v) => sum + diffDays(v.created_at, v.resolved_at!), 0) / group.length;
     return { severity: sev.charAt(0).toUpperCase() + sev.slice(1), mttr: Math.round(avg) };
   }).filter(Boolean) as { severity: string; mttr: number }[];
-
   const now = new Date();
   const trendData = Array.from({ length: 6 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
     const label = d.toLocaleString("id-ID", { month: "short", year: "2-digit" });
-    const monthVulns = vulns.filter((v) => {
+    const mv = vulns.filter((v) => {
       const cd = new Date(v.created_at);
       return cd.getFullYear() === d.getFullYear() && cd.getMonth() === d.getMonth();
     });
     return {
       month: label,
-      critical: monthVulns.filter((v) => v.severity?.toLowerCase() === "critical").length,
-      high: monthVulns.filter((v) => v.severity?.toLowerCase() === "high").length,
-      medium: monthVulns.filter((v) => v.severity?.toLowerCase() === "medium").length,
-      low: monthVulns.filter((v) => v.severity?.toLowerCase() === "low").length,
+      critical: mv.filter((v) => v.severity?.toLowerCase() === "critical").length,
+      high: mv.filter((v) => v.severity?.toLowerCase() === "high").length,
+      medium: mv.filter((v) => v.severity?.toLowerCase() === "medium").length,
+      low: mv.filter((v) => v.severity?.toLowerCase() === "low").length,
     };
   });
-
   const severityDist = SEVERITY_ORDER.map((sev) => ({
     name: sev.charAt(0).toUpperCase() + sev.slice(1),
     value: vulns.filter((v) => v.severity?.toLowerCase() === sev).length,
     color: SEVERITY_COLORS[sev],
   })).filter((d) => d.value > 0);
-
   const statusMap: Record<string, number> = {};
-  vulns.forEach((v) => {
-    const s = v.status || "unknown";
-    statusMap[s] = (statusMap[s] || 0) + 1;
-  });
+  vulns.forEach((v) => { const s = v.status || "unknown"; statusMap[s] = (statusMap[s] || 0) + 1; });
   const statusDist = Object.entries(statusMap).map(([name, value]) => ({ name, value }));
-
   const weights: Record<string, number> = { critical: 10, high: 7, medium: 4, low: 1 };
   const rawScore = open.reduce((sum, v) => sum + (weights[v.severity?.toLowerCase()] || 0), 0);
   const riskScore = Math.min(100, Math.round((rawScore / Math.max(open.length * 10, 1)) * 100));
-
   const slaDays: Record<string, number> = { critical: 7, high: 14, medium: 30, low: 90 };
   const slaBreached = open.filter((v) => {
     const limit = slaDays[v.severity?.toLowerCase()] || 90;
     return diffDays(v.created_at, new Date().toISOString()) > limit;
   }).length;
-
   return { totalOpen: open.length, totalResolved: resolved.length, mttrDays, mttrBySeverity, trendData, severityDist, statusDist, riskScore, slaBreached };
 }
-
 function StatCard({ label, value, sub, accent }: { label: string; value: string | number; sub?: string; accent?: string }) {
   return (
     <div className="bg-[#0f1117] border border-[#1e2330] rounded-xl p-5 flex flex-col gap-1">
@@ -120,7 +81,6 @@ function StatCard({ label, value, sub, accent }: { label: string; value: string 
     </div>
   );
 }
-
 function RiskGauge({ score }: { score: number }) {
   const color = score >= 80 ? "#ef4444" : score >= 50 ? "#f97316" : score >= 25 ? "#eab308" : "#22c55e";
   const label = score >= 80 ? "Kritis" : score >= 50 ? "Tinggi" : score >= 25 ? "Sedang" : "Rendah";
@@ -145,12 +105,10 @@ function RiskGauge({ score }: { score: number }) {
     </div>
   );
 }
-
 export default function AnalyticsDashboard({ projectId }: { projectId: string }) {
   const supabase = createClientComponentClient();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     async function load() {
       const { data: vulns, error } = await supabase
@@ -163,12 +121,9 @@ export default function AnalyticsDashboard({ projectId }: { projectId: string })
     }
     load();
   }, [projectId, supabase]);
-
   if (loading) return <div className="flex items-center justify-center h-48 text-zinc-500 text-sm">Memuat analytics...</div>;
   if (!data) return <div className="flex items-center justify-center h-48 text-zinc-500 text-sm">Gagal memuat data.</div>;
-
-  const mttrLabel = data.mttrDays != null ? `${Math.round(data.mttrDays)} hari` : "—";
-
+  const mttrLabel = data.mttrDays != null ? `${Math.round(data.mttrDays)} hari` : "-";
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -203,7 +158,7 @@ export default function AnalyticsDashboard({ projectId }: { projectId: string })
         </div>
       </div>
       <div className="bg-[#0f1117] border border-[#1e2330] rounded-xl p-5">
-        <span className="text-xs font-medium text-zinc-500 uppercase tracking-widest block mb-4">Trend Temuan — 6 Bulan Terakhir</span>
+        <span className="text-xs font-medium text-zinc-500 uppercase tracking-widest block mb-4">Trend Temuan - 6 Bulan Terakhir</span>
         <ResponsiveContainer width="100%" height={180}>
           <AreaChart data={data.trendData}>
             <defs>
