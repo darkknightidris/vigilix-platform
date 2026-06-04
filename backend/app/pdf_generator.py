@@ -473,10 +473,20 @@ def generate_pdf(data) -> bytes:
     with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
         tmp_path = tmp.name
     try:
+        findings = []
+        for v in data.vulnerabilities:
+            d = v.dict()
+            d["title"] = d.get("title") or "Untitled"
+            d["severity"] = d.get("severity") or "info"
+            d["status"] = d.get("status") or "open"
+            d["description"] = d.get("description") or "-"
+            d["steps_to_reproduce"] = d.get("steps_to_reproduce") or ""
+            d["cvss_score"] = d.get("cvss_score")
+            findings.append(d)
         generate_report(
-            findings=[v.dict() for v in data.vulnerabilities],
-            project_name=data.project_name,
-            org_name=data.org_name,
+            findings=findings,
+            project_name=data.project_name or "Untitled Project",
+            org_name=data.org_name or "Organization",
             org_logo_url=getattr(data, "logo_url", None),
             output_path=tmp_path,
         )
@@ -485,3 +495,4 @@ def generate_pdf(data) -> bytes:
     finally:
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
+
