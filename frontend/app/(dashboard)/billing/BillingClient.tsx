@@ -1,0 +1,129 @@
+﻿"use client"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+
+const PLANS = [
+  { id:"pro", name:"Pro", price:"Rp 499.000", color:"border-blue-500", badge:"bg-blue-600",
+    features:["5 project","10 user","PDF export","Import CSV","Semua fitur"] },
+  { id:"team", name:"Team", price:"Rp 1.200.000", color:"border-purple-500", badge:"bg-purple-600", popular:true,
+    features:["Unlimited project & user","API access","SSO (coming soon)","Audit log","Priority support"] }
+]
+
+export default function BillingClient({ plan, daysLeft, isExpired, orgName, status }: {
+  plan:string, daysLeft:number, isExpired:boolean, orgName:string, status?:string
+}) {
+  const [loading, setLoading] = useState<string|null>(null)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+  const router = useRouter()
+
+  const handleUpgrade = async (planId: string) => {
+    setLoading(planId); setError(""); setSuccess("")
+    try {
+      const res = await fetch("/api/billing/create-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planId }),
+      })
+      const data = await res.json()
+      if (data.demo_mode) {
+        setSuccess("Plan berhasil diupgrade!")
+        setTimeout(() => router.refresh(), 2000)
+      } else if (data.invoice_url) {
+        window.open(data.invoice_url, "_blank")
+      } else {
+        setError(data.error || "Gagal membuat invoice")
+      }
+    } catch { setError("Terjadi kesalahan. Coba lagi.") }
+    setLoading(null)
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-white">Billing & Subscription</h1>
+        <p className="text-gray-400 text-sm mt-1">{orgName}</p>
+      </div>
+
+      <div className="p-4 bg-yellow-900/20 border border-yellow-800 rounded-xl">
+        <p className="text-yellow-400 text-sm font-medium">⚠️ Demo Mode Aktif</p>
+        <p className="text-yellow-300/70 text-xs mt-1">Xendit belum terhubung. Upgrade langsung diapply tanpa payment.</p>
+      </div>
+
+      {(status === "success" || success) && (
+        <div className="p-4 bg-green-900/30 border border-green-700 rounded-xl text-green-400">
+          ✅ {success || "Plan berhasil diupgrade!"}
+        </div>
+      )}
+      {status === "failed" && (
+        <div className="p-4 bg-red-900/30 border border-red-700 rounded-xl text-red-400">
+          ❌ Pembayaran gagal atau dibatalkan.
+        </div>
+      )}
+      {error && <div className="p-4 bg-red-900/30 border border-red-700 rounded-xl text-red-400 text-sm">{error}</div>}
+
+      <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
+        <h2 className="text-white font-semibold mb-3">Plan Saat Ini</h2>
+        <div className="flex items-center gap-4">
+          <span className={`px-3 py-1 rounded-full text-sm font-bold text-white capitalize ${
+            plan==="trial"?"bg-gray-600":plan==="pro"?"bg-blue-600":"bg-purple-600"}`}>
+            {plan==="trial"?"Free Trial":plan}
+          </span>
+          {plan==="trial" && (
+            <p className={`text-sm ${isExpired?"text-red-400":"text-gray-400"}`}>
+              {isExpired ? "⚠️ Trial berakhir" : `🕐 ${daysLeft} hari tersisa`}
+            </p>
+          )}
+          {plan!=="trial" && <p className="text-green-400 text-sm">✅ Aktif</p>}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-white font-semibold mb-6">Pilih Plan</h2>
+        <div className="grid grid-cols-2 gap-6">
+          {PLANS.map(p => (
+            <div key={p.id} className={`relative p-6 bg-gray-900 rounded-xl border-2 ${p.color}`}>
+              {p.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">POPULER</span>
+                </div>
+              )}
+              <h3 className="text-white font-bold text-lg">{p.name}</h3>
+              <div className="flex items-baseline gap-1 mt-1 mb-4">
+                <span className="text-3xl font-bold text-white">{p.price}</span>
+                <span className="text-gray-400 text-sm">/bulan</span>
+              </div>
+              <ul className="space-y-2 mb-6">
+                {p.features.map(f => (
+                  <li key={f} className="flex items-center gap-2 text-gray-300 text-sm">
+                    <span className="text-green-400">✓</span> {f}
+                  </li>
+                ))}
+              </ul>
+              {plan===p.id ? (
+                <div className="w-full py-2.5 text-center text-gray-500 text-sm border border-gray-700 rounded-lg">Plan Aktif</div>
+              ) : (
+                <button onClick={() => handleUpgrade(p.id)} disabled={loading===p.id}
+                  className={`w-full py-2.5 ${p.badge} hover:opacity-90 disabled:opacity-50 text-white font-medium rounded-lg transition`}>
+                  {loading===p.id ? "Memproses..." : `Upgrade ke ${p.name}`}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="p-6 bg-gray-900 rounded-xl border border-gray-800 space-y-3">
+        <h2 className="text-white font-semibold">FAQ</h2>
+        <div className="text-sm">
+          <p className="text-white font-medium">Metode pembayaran?</p>
+          <p className="text-gray-400">Transfer bank (VA), QRIS, kartu kredit via Xendit.</p>
+        </div>
+        <div className="text-sm">
+          <p className="text-white font-medium">Ada kontrak jangka panjang?</p>
+          <p className="text-gray-400">Tidak. Per bulan, bisa cancel kapan saja.</p>
+        </div>
+      </div>
+    </div>
+  )
+}

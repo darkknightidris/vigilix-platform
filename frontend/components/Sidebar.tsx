@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: "⊞" },
   { href: "/projects", label: "Projects", icon: "📁" },
+  { href: "/billing", label: "Billing", icon: "💳" },
   { href: "/settings", label: "Settings", icon: "⚙" },
 ]
 
@@ -21,9 +22,7 @@ export default function Sidebar() {
           return (
             <Link key={item.href} href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition ${
-                active
-                  ? "bg-blue-600 text-white font-medium"
-                  : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                active ? "bg-blue-600 text-white font-medium" : "text-gray-400 hover:bg-gray-800 hover:text-white"
               }`}>
               <span>{item.icon}</span>
               {item.label}
