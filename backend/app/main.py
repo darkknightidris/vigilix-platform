@@ -4,7 +4,7 @@ from sentry_sdk.integrations.starlette import StarletteIntegration
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.routers import report, remediation, totp, webhooks, api_keys, audit_log
+from app.routers import report, remediation, totp, webhooks, api_keys, audit_log, audit_log
 from app.scheduler import start_scheduler, stop_scheduler
 import os
 
@@ -37,10 +37,12 @@ app.include_router(totp.router)
 app.include_router(webhooks.router)
 app.include_router(api_keys.router)
 app.include_router(audit_log.router)
+app.include_router(audit_log.router)
 
 @app.get("/")
 def root():
     return {"status": "ok", "service": "Vigilix API"}
+
 
 
 
