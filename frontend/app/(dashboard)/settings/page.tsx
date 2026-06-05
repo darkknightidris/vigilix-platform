@@ -258,40 +258,16 @@ export default function SettingsPage() {
       await supabase.from("profiles").update({ full_name: fullName }).eq("id", user.id)
 
       if (["owner", "admin"].includes(profile?.role)) {
-        let newLogoUrl = logoUrl
-
-        // Upload logo baru jika ada
-        if (logoFile) {
-          const ext  = logoFile.name.split(".").pop()
-          const path = `${profile.organization_id}/logo.${ext}`
-          const { error: uploadErr } = await supabase.storage
-            .from("org-logos")
-            .upload(path, logoFile, { upsert: true, contentType: logoFile.type })
-
-          if (uploadErr) throw uploadErr
-
-          const { data: urlData } = supabase.storage.from("org-logos").getPublicUrl(path)
-          newLogoUrl = urlData.publicUrl + `?t=${Date.now()}` // cache bust
-        }
-
-        // Hapus logo jika dihapus
-        if (!logoFile && !logoUrl && logoPreview === null) {
-          try {
-            const ext = ["png","jpg","jpeg","webp"]
-            for (const e of ext) {
-              await supabase.storage.from("org-logos").remove([`${profile.organization_id}/logo.${e}`])
-            }
-          } catch (_) {}
-          newLogoUrl = null
-        }
-
-        await fetch("/api/update-org", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orgId: profile.organization_id, name: orgName, logoUrl: newLogoUrl })
-        })
-
-        setLogoUrl(newLogoUrl)
+        const fd = new FormData()
+        fd.append("orgId", profile.organization_id)
+        fd.append("name", orgName)
+        fd.append("currentLogoUrl", logoUrl || "")
+        fd.append("removeLogo", (!logoFile && !logoUrl && logoPreview === null).toString())
+        if (logoFile) fd.append("logoFile", logoFile)
+        const res = await fetch("/api/update-org", { method: "POST", body: fd })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.error)
+        setLogoUrl(data.logoUrl)
         setLogoFile(null)
       }
 
