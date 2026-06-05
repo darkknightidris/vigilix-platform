@@ -285,9 +285,11 @@ export default function SettingsPage() {
           newLogoUrl = null
         }
 
-        await supabase.from("organizations")
-          .update({ name: orgName, logo_url: newLogoUrl })
-          .eq("id", profile.organization_id)
+        await fetch("/api/update-org", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orgId: profile.organization_id, name: orgName, logoUrl: newLogoUrl })
+        })
 
         setLogoUrl(newLogoUrl)
         setLogoFile(null)
@@ -618,4 +620,5 @@ export default function SettingsPage() {
     </div>
   )
 }
+
 
