@@ -149,3 +149,10 @@ backend/venv/
 .env.local
 .env
 .env*.local
+
+__pycache__/
+*.pyc
+*.bak
+*.backup
+*.sql
+vigilix_project_context.md
