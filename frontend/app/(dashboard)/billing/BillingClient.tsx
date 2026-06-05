@@ -47,28 +47,17 @@ export default function BillingClient({ plan, daysLeft, isExpired, orgName, stat
     if (!session) { setError("Session expired, silakan login ulang"); setSubmitting(false); return }
 
     try {
-      const res = await fetch("https://api.resend.com/emails", {
+      const res = await fetch("/api/payment-notify", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_RESEND_KEY || ""}`,
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "noreply@vigilix.id",
-          to: "idris@vigilix.id",
-          subject: `[Vigilix] Konfirmasi Pembayaran - ${orgName} - Plan ${selectedPlan?.toUpperCase()}`,
-          html: `
-            <h2>Konfirmasi Pembayaran Masuk</h2>
-            <p><strong>Organisasi:</strong> ${orgName}</p>
-            <p><strong>Plan:</strong> ${selectedPlan?.toUpperCase()}</p>
-            <p><strong>Jumlah:</strong> ${planData?.price}</p>
-            <p><strong>Metode:</strong> ${methodData?.label}</p>
-            <p><strong>Nama Pengirim:</strong> ${senderName}</p>
-            <p><strong>Email User:</strong> ${session.user.email}</p>
-            <p><strong>User ID:</strong> ${session.user.id}</p>
-            <hr/>
-            <p>Silakan verifikasi dan aktifkan plan di Supabase dashboard.</p>
-          `
+          orgName,
+          plan: selectedPlan,
+          price: planData?.price,
+          method: methodData?.label,
+          senderName,
+          userEmail: session.user.email,
+          userId: session.user.id
         })
       })
 
@@ -264,3 +253,4 @@ export default function BillingClient({ plan, daysLeft, isExpired, orgName, stat
     </div>
   )
 }
+

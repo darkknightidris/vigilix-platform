@@ -20,6 +20,7 @@ export default function NewVulnerabilityPage() {
   const [cvssVector, setCvssVector] = useState("")
   const [description, setDescription] = useState("")
   const [steps, setSteps] = useState("")
+  const [complianceTags, setComplianceTags] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -126,3 +127,4 @@ export default function NewVulnerabilityPage() {
     </div>
   )
 }
+
