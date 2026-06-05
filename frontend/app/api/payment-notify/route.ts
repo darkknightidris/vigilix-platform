@@ -1,8 +1,25 @@
-﻿import { NextRequest, NextResponse } from "next/server"
+﻿import { createClient } from "@supabase/supabase-js"
+import { NextRequest, NextResponse } from "next/server"
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+)
 
 export async function POST(req: NextRequest) {
   try {
     const { orgName, plan, price, method, senderName, userEmail, userId } = await req.json()
+
+    await supabase.from("payment_confirmations").insert({
+      user_id: userId,
+      org_name: orgName,
+      plan,
+      amount: price,
+      method,
+      sender_name: senderName,
+      user_email: userEmail,
+      status: "pending"
+    })
 
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -26,16 +43,10 @@ export async function POST(req: NextRequest) {
             <tr><td><strong>User ID</strong></td><td>${userId}</td></tr>
           </table>
           <hr/>
-          <p>Jalankan SQL ini untuk aktifkan plan:</p>
-          <pre>UPDATE organizations SET plan = '${plan}' WHERE id = (SELECT organization_id FROM profiles WHERE id = '${userId}');</pre>
+          <p>Aktivasi langsung di: <a href="https://vigilix.id/admin">vigilix.id/admin</a></p>
         `
       })
     })
-
-    if (!res.ok) {
-      const err = await res.json()
-      return NextResponse.json({ error: err }, { status: 500 })
-    }
 
     return NextResponse.json({ ok: true })
   } catch (error: any) {
