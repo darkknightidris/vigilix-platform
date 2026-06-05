@@ -6,7 +6,6 @@ export async function POST(req: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
     const groqKey = process.env.GROQ_API_KEY
-    const anthropicKey = process.env.ANTHROPIC_API_KEY
 
     if (!supabaseUrl || !supabaseKey) {
       return NextResponse.json({ error: "Supabase not configured" }, { status: 500 })
@@ -46,64 +45,27 @@ Berikan:
 4. Contoh Kode - Contoh implementasi fix jika relevan
 5. Referensi - OWASP atau CVE yang relevan`
 
-    let suggestion = ""
-    let modelName = ""
-
-    if (plan === "team" && anthropicKey) {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": anthropicKey,
-          "anthropic-version": "2023-06-01"
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-6",
-          max_tokens: 1500,
-          messages: [{ role: "user", content: prompt }]
-        })
-      })
-      const data = await response.json()
-      suggestion = data.content?.[0]?.text || "Gagal mendapat respons"
-      modelName = "Claude Sonnet"
-
-    } else if (plan === "pro" && anthropicKey) {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": anthropicKey,
-          "anthropic-version": "2023-06-01"
-        },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: prompt }]
-        })
-      })
-      const data = await response.json()
-      suggestion = data.content?.[0]?.text || "Gagal mendapat respons"
-      modelName = "Claude Haiku"
-
-    } else if (groqKey) {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${groqKey}`
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: prompt }]
-        })
-      })
-      const data = await response.json()
-      suggestion = data.choices?.[0]?.message?.content || "Gagal mendapat respons"
-      modelName = "Llama 3.3"
-    } else {
+    if (!groqKey) {
       return NextResponse.json({ error: "AI not configured" }, { status: 500 })
     }
+
+    const modelName = plan === "team" ? "Llama 3.3 (Team)" : plan === "pro" ? "Llama 3.3 (Pro)" : "Llama 3.3"
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${groqKey}`
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        max_tokens: 1500,
+        messages: [{ role: "user", content: prompt }]
+      })
+    })
+
+    const data = await response.json()
+    const suggestion = data.choices?.[0]?.message?.content || "Gagal mendapat respons"
 
     return NextResponse.json({ suggestion, model: modelName })
 
