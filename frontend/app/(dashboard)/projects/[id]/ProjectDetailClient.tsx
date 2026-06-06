@@ -257,22 +257,26 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
                     </div>
                   </Link>
                 </div>
-                <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end max-w-[140px]">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status] || ""}`}>
-                    {v.status?.replace("_"," ")}
-                  </span>
-                  <span className="text-gray-500 text-xs">{new Date(v.created_at).toLocaleDateString("id-ID")}</span>
-                  <button
-                    onClick={() => handleAiFix(v.id, v.title)}
-                    className="px-2 py-1 bg-purple-700 hover:bg-purple-600 text-white text-xs rounded-lg transition flex items-center gap-1"
-                  >
-                    AI Fix
-                  </button>
-                  {isAdmin && (
-                    <Link href={`/projects/${projectId}/vulnerabilities/${v.id}`} className="p-1.5 text-gray-500 hover:text-blue-400 hover:bg-blue-950/30 rounded-lg transition text-xs">
-                      Edit
-                    </Link>
-                  )}
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status] || ""}`}>
+                      {v.status?.replace("_"," ")}
+                    </span>
+                    <span className="text-gray-500 text-xs">{new Date(v.created_at).toLocaleDateString("id-ID")}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleAiFix(v.id, v.title)}
+                      className="px-2 py-1 bg-purple-700 hover:bg-purple-600 text-white text-xs rounded-lg transition"
+                    >
+                      AI Fix
+                    </button>
+                    {isAdmin && (
+                      <Link href={`/projects/${projectId}/vulnerabilities/${v.id}`} className="px-2 py-1 text-gray-400 hover:text-blue-400 hover:bg-blue-950/30 rounded-lg transition text-xs border border-gray-700">
+                        Edit
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
               {isAdmin && (
@@ -351,4 +355,5 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
     </div>
   )
 }
+
 
