@@ -33,7 +33,7 @@ export default async function DashboardPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-xl md:text-2xl font-bold text-white">
             {profile?.organizations?.name || "Dashboard"}
           </h1>
           <p className="text-gray-400 text-sm mt-1">
@@ -43,31 +43,31 @@ export default async function DashboardPage() {
         <LogoutButton />
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <div className="p-5 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-400 text-sm">Total Project</p>
-          <p className="text-3xl font-bold text-white mt-1">{projects?.length || 0}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <div className="p-4 md:p-5 bg-gray-900 rounded-xl border border-gray-800">
+          <p className="text-gray-400 text-xs md:text-sm">Total Project</p>
+          <p className="text-2xl md:text-3xl font-bold text-white mt-1">{projects?.length || 0}</p>
         </div>
-        <div className="p-5 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-400 text-sm">Total Temuan</p>
-          <p className="text-3xl font-bold text-white mt-1">{vulns?.length || 0}</p>
+        <div className="p-4 md:p-5 bg-gray-900 rounded-xl border border-gray-800">
+          <p className="text-gray-400 text-xs md:text-sm">Total Temuan</p>
+          <p className="text-2xl md:text-3xl font-bold text-white mt-1">{vulns?.length || 0}</p>
         </div>
-        <div className="p-5 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-400 text-sm">Open</p>
-          <p className="text-3xl font-bold text-red-400 mt-1">{openCount}</p>
+        <div className="p-4 md:p-5 bg-gray-900 rounded-xl border border-gray-800">
+          <p className="text-gray-400 text-xs md:text-sm">Open</p>
+          <p className="text-2xl md:text-3xl font-bold text-red-400 mt-1">{openCount}</p>
         </div>
-        <div className="p-5 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-400 text-sm">Fixed</p>
-          <p className="text-3xl font-bold text-green-400 mt-1">{fixedCount}</p>
+        <div className="p-4 md:p-5 bg-gray-900 rounded-xl border border-gray-800">
+          <p className="text-gray-400 text-xs md:text-sm">Fixed</p>
+          <p className="text-2xl md:text-3xl font-bold text-green-400 mt-1">{fixedCount}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="p-5 md:p-6 bg-gray-900 rounded-xl border border-gray-800">
           <h2 className="text-white font-semibold mb-4">Severity Breakdown</h2>
           <SeverityChart data={severityCounts} />
         </div>
-        <div className="p-6 bg-gray-900 rounded-xl border border-gray-800">
+        <div className="p-5 md:p-6 bg-gray-900 rounded-xl border border-gray-800">
           <h2 className="text-white font-semibold mb-4">Ringkasan Severity</h2>
           <div className="space-y-3">
             {Object.entries(severityCounts).map(([sev, count]) => {
