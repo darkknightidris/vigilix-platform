@@ -245,7 +245,7 @@ export default function VulnDetailClient({
             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm rounded-lg transition">
             {uploading ? "Uploading..." : "+ Upload"}
           </button>
-          <input ref={fileRef} type="file" accept="image/*,.pdf,.txt,.doc,.docx" onChange={handleUpload} className="hidden" />
+          <input ref={fileRef} type="file" accept="*/*" onChange={handleUpload} className="hidden" />
         </div>
         {localAttachments.length === 0 ? (
           <p className="text-gray-500 text-sm text-center py-4">Belum ada attachment</p>
@@ -321,3 +321,4 @@ export default function VulnDetailClient({
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import AnalyticsDashboard from "@/components/AnalyticsDashboard"
 import { useState } from "react"
 import Link from "next/link"
@@ -232,7 +232,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
       {/* Vuln list */}
       {vulns.length === 0 ? (
         <div className="p-12 bg-gray-900 rounded-xl border border-gray-800 text-center">
-          <p className="text-4xl mb-3">📋</p>
+          <p className="text-4xl mb-3">ðŸ“‹</p>
           <p className="text-white font-medium">Belum ada temuan</p>
           <Link href={`/projects/${projectId}/vulnerabilities/new`} className="inline-block mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
             + Tambah Temuan Pertama
@@ -257,7 +257,7 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
                     </div>
                   </Link>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 shrink-0 flex-wrap justify-end max-w-[140px]">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[v.status] || ""}`}>
                     {v.status?.replace("_"," ")}
                   </span>
@@ -351,3 +351,4 @@ export default function ProjectDetailClient({ project, vulns: initialVulns, memb
     </div>
   )
 }
+
