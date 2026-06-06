@@ -138,9 +138,8 @@ export default function TwoFactorSection({ token }: Props) {
           </div>
           <div className="space-y-2">
             <p className="text-xs text-gray-400">Masukkan 6-digit kode dari app untuk verifikasi:</p>
-            <div className="flex gap-2">
-              <input
-                type="text" maxLength={6} value={code}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input type="text" maxLength={6} value={code}
                 onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
                 placeholder="000000"
                 className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-center font-mono text-lg tracking-widest focus:outline-none focus:border-indigo-500"
@@ -176,7 +175,7 @@ export default function TwoFactorSection({ token }: Props) {
       {step === "disabling" && (
         <div className="space-y-3 p-4 bg-red-950/20 rounded-xl border border-red-800/40">
           <p className="text-sm text-red-300 font-medium">Masukkan kode dari authenticator untuk nonaktifkan 2FA:</p>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text" maxLength={6} value={code}
               onChange={e => setCode(e.target.value.replace(/\D/g, ""))}
@@ -197,3 +196,4 @@ export default function TwoFactorSection({ token }: Props) {
     </div>
   )
 }
+

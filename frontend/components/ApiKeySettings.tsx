@@ -239,7 +239,7 @@ export default function ApiKeySettings({ token, isAdmin, plan }: Props) {
       {/* Docs singkat */}
       <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700/50 space-y-2">
         <p className="text-xs text-gray-400 font-medium">Cara pakai API:</p>
-        <code className="block text-xs text-indigo-300 font-mono bg-gray-900 px-3 py-2 rounded-lg">
+        <code className="block text-xs text-indigo-300 font-mono bg-gray-900 px-3 py-2 rounded-lg break-all">
           GET https://vigilix-platform-production.up.railway.app/api/apikeys/v1/findings
         </code>
         <code className="block text-xs text-gray-400 font-mono bg-gray-900 px-3 py-2 rounded-lg">
@@ -249,3 +249,4 @@ export default function ApiKeySettings({ token, isAdmin, plan }: Props) {
     </div>
   )
 }
+
