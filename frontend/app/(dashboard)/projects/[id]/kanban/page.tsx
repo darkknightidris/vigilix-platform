@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+﻿import { createClient } from "@/lib/supabase/server"
 import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import KanbanBoard from "@/components/KanbanBoard"
@@ -22,7 +22,7 @@ export default async function KanbanPage({ params }: { params: Promise<{ id: str
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <Link href={`/projects/${id}`} className="text-gray-400 hover:text-white transition">?</Link>
+          <Link href={`/projects/${id}`} className="text-gray-400 hover:text-white transition text-xl">←</Link>
           <div>
             <h1 className="text-xl font-bold text-white">{project.name}</h1>
             <p className="text-gray-400 text-xs mt-0.5">Kanban Board</p>
@@ -37,3 +37,4 @@ export default async function KanbanPage({ params }: { params: Promise<{ id: str
     </div>
   )
 }
+
