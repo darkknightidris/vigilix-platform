@@ -112,7 +112,7 @@ export default function BillingClient({ plan, daysLeft, isExpired, orgName, stat
       {step === "plans" && (
         <div>
           <h2 className="text-white font-semibold mb-6">Pilih Plan</h2>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {PLANS.map(p => (
               <div key={p.id} className={`relative p-6 bg-gray-900 rounded-xl border-2 ${p.color}`}>
                 {p.popular && (
@@ -121,8 +121,8 @@ export default function BillingClient({ plan, daysLeft, isExpired, orgName, stat
                   </div>
                 )}
                 <h3 className="text-white font-bold text-lg">{p.name}</h3>
-                <div className="flex items-baseline gap-1 mt-1 mb-4">
-                  <span className="text-3xl font-bold text-white">{p.price}</span>
+                <div className="flex flex-wrap items-baseline gap-1 mt-1 mb-4">
+                  <span className="text-2xl md:text-3xl font-bold text-white break-all">{p.price}</span>
                   <span className="text-gray-400 text-sm">/bulan</span>
                 </div>
                 <ul className="space-y-2 mb-6">
@@ -253,4 +253,5 @@ export default function BillingClient({ plan, daysLeft, isExpired, orgName, stat
     </div>
   )
 }
+
 
